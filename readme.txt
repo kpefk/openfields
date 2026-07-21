@@ -2,7 +2,7 @@
 Contributors: kpefk
 Tags: custom fields, fields, acf, field groups, gutenberg
 Requires at least: 6.4
-Tested up to: 6.6
+Tested up to: 7.0
 Requires PHP: 8.1
 Stable tag: 0.1.0-alpha
 License: GPLv2 or later
