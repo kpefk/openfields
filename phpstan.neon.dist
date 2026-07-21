@@ -3,6 +3,8 @@ includes:
 
 parameters:
 	level: 6
+	bootstrapFiles:
+		- tests/phpstan/constants.php
 	paths:
 		- includes
 		- openfields.php

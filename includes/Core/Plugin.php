@@ -14,9 +14,8 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Main plugin orchestrator.
  *
- * Milestone 0 provides a minimal, safe entry point. Subsystem wiring (CPT,
- * field types, REST, admin) is introduced in later milestones through a
- * dependency-injection container.
+ * Owns the service container, registers core subsystems, and hooks them into
+ * WordPress on {@see Plugin::boot()}.
  */
 final class Plugin {
 
@@ -28,6 +27,13 @@ final class Plugin {
 	private static ?Plugin $instance = null;
 
 	/**
+	 * Service container.
+	 *
+	 * @var Container
+	 */
+	private Container $container;
+
+	/**
 	 * Whether boot() has already run.
 	 *
 	 * @var bool
@@ -35,9 +41,12 @@ final class Plugin {
 	private bool $booted = false;
 
 	/**
-	 * Private constructor — use {@see Plugin::instance()}.
+	 * Build the plugin and register its services.
 	 */
-	private function __construct() {}
+	private function __construct() {
+		$this->container = new Container();
+		$this->register_services();
+	}
 
 	/**
 	 * Retrieve the shared instance.
@@ -53,6 +62,42 @@ final class Plugin {
 	}
 
 	/**
+	 * Access the service container.
+	 *
+	 * @return Container
+	 */
+	public function container(): Container {
+		return $this->container;
+	}
+
+	/**
+	 * Register core services in the container.
+	 *
+	 * @return void
+	 */
+	private function register_services(): void {
+		$this->container->singleton(
+			Security::class,
+			static fn (): Security => new Security()
+		);
+
+		$this->container->singleton(
+			PostType::class,
+			static fn (): PostType => new PostType()
+		);
+
+		$this->container->singleton(
+			MetaRegistrar::class,
+			static fn (): MetaRegistrar => new MetaRegistrar()
+		);
+
+		$this->container->singleton(
+			Assets::class,
+			static fn (): Assets => new Assets()
+		);
+	}
+
+	/**
 	 * Boot the plugin. Idempotent.
 	 *
 	 * @return void
@@ -64,14 +109,24 @@ final class Plugin {
 
 		$this->booted = true;
 
+		$post_type = $this->container->get( PostType::class );
+		$meta      = $this->container->get( MetaRegistrar::class );
+		$assets    = $this->container->get( Assets::class );
+
+		add_action( 'init', array( $post_type, 'register_status' ), 1 );
+		add_action( 'init', array( $post_type, 'register' ) );
+		add_action( 'init', array( $meta, 'register' ) );
 		add_action( 'init', array( $this, 'load_textdomain' ) );
+		add_action( 'admin_enqueue_scripts', array( $assets, 'enqueue' ) );
 
 		/**
 		 * Fires after OpenFields has booted.
 		 *
 		 * @since 0.1.0
+		 *
+		 * @param Container $container The plugin service container.
 		 */
-		do_action( 'openfields/booted' );
+		do_action( 'openfields/booted', $this->container );
 	}
 
 	/**

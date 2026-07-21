@@ -89,3 +89,30 @@ function bootstrap(): void {
 }
 
 add_action( 'plugins_loaded', __NAMESPACE__ . '\\bootstrap', 5 );
+
+/**
+ * Run activation tasks.
+ *
+ * Activation may fire before {@see bootstrap()}, so load the autoloader here.
+ *
+ * @return void
+ */
+function activate(): void {
+	if ( load_autoloader() && class_exists( Core\Activation::class ) ) {
+		Core\Activation::activate();
+	}
+}
+
+/**
+ * Run deactivation tasks.
+ *
+ * @return void
+ */
+function deactivate(): void {
+	if ( load_autoloader() && class_exists( Core\Activation::class ) ) {
+		Core\Activation::deactivate();
+	}
+}
+
+register_activation_hook( __FILE__, __NAMESPACE__ . '\\activate' );
+register_deactivation_hook( __FILE__, __NAMESPACE__ . '\\deactivate' );

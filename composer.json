@@ -33,6 +33,7 @@
 	},
 	"autoload-dev": {
 		"psr-4": {
+			"OpenFields\\Tests\\Unit\\": "tests/unit/",
 			"OpenFields\\Tests\\": "tests/"
 		}
 	},
