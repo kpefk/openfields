@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace OpenFields\Core;
 
 use OpenFields\FieldGroups\LocationCache;
+use OpenFields\FieldTypes\FieldTypeRegistry;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -102,6 +103,11 @@ final class Plugin {
 			LocationCache::class,
 			static fn (): LocationCache => new LocationCache()
 		);
+
+		$this->container->singleton(
+			FieldTypeRegistry::class,
+			static fn (): FieldTypeRegistry => new FieldTypeRegistry()
+		);
 	}
 
 	/**
@@ -120,7 +126,9 @@ final class Plugin {
 		$meta           = $this->container->get( MetaRegistrar::class );
 		$assets         = $this->container->get( Assets::class );
 		$location_cache = $this->container->get( LocationCache::class );
+		$field_types    = $this->container->get( FieldTypeRegistry::class );
 
+		add_action( 'init', array( $field_types, 'register_defaults' ), 1 );
 		add_action( 'init', array( $post_type, 'register_status' ), 1 );
 		add_action( 'init', array( $post_type, 'register' ) );
 		add_action( 'init', array( $meta, 'register' ) );

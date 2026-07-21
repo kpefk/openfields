@@ -33,5 +33,10 @@ minor releases.
   providers) evaluated against an immutable `LocationContext`; a versioned
   `LocationCache` invalidated when a field group is saved or deleted; and a
   `Support\Sanitizer` for keys and configuration structures.
+- Field Type API (backend): an `AbstractFieldType` contract (sanitize, validate
+  returning `WP_Error`, format, REST/JSON schema, required handling) and a
+  `FieldTypeRegistry` with an `openfields/register_field_types` extension hook,
+  plus the 13 core field types — Text, Textarea, Number, Email, URL, Image,
+  File, WYSIWYG, Select, Checkbox, Radio, True/False and Message.
 
 [Unreleased]: https://github.com/kpefk/openfields/commits/main

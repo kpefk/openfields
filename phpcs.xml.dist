@@ -22,6 +22,8 @@
 	<rule ref="WordPress-Extra">
 		<!-- PSR-4 class files use StudlyCase names, not hyphenated WP file names. -->
 		<exclude name="WordPress.Files.FileName"/>
+		<!-- Template-method base/overridable methods keep contract params unused. -->
+		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter"/>
 	</rule>
 	<rule ref="WordPress-Docs"/>
 
