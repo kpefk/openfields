@@ -26,5 +26,12 @@ minor releases.
   `Assets` loader for compiled admin bundles — all wired through `Plugin`.
 - Unit tests for the Core layer (WordPress functions stubbed via namespaced
   overrides).
+- Field groups layer: a `FieldGroup` model that normalises configuration and
+  applies schema migrations; a `SchemaUpgrader` performing sequential,
+  idempotent, lazy migrations with a `schema_version` stamp; a pure
+  `LocationRules` engine (OR-groups of AND-rules, `==`/`!=`, extensible
+  providers) evaluated against an immutable `LocationContext`; a versioned
+  `LocationCache` invalidated when a field group is saved or deleted; and a
+  `Support\Sanitizer` for keys and configuration structures.
 
 [Unreleased]: https://github.com/kpefk/openfields/commits/main

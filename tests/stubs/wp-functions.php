@@ -1,12 +1,12 @@
 <?php
 /**
- * WordPress function stubs in the OpenFields\Core namespace.
+ * WordPress function/class stubs for unit tests.
  *
- * Unqualified calls to these functions inside classes under test (which live in
- * OpenFields\Core) resolve here first, before the global namespace. Each stub
- * delegates to {@see \OpenFields\Tests\WpStubs}, letting tests set return values
- * and assert on the arguments. Pure pass-through helpers (i18n/escaping) return
- * their input directly.
+ * Classes under test call WordPress functions unqualified, so PHP resolves them
+ * in the class's own namespace before falling back to the global one. We define
+ * the needed functions in each namespace, delegating to
+ * {@see \OpenFields\Tests\WpStubs} so tests can set return values and assert on
+ * arguments. Pure pass-through helpers (i18n/escaping) return their input.
  *
  * Loaded via tests/bootstrap.php.
  *
@@ -15,114 +15,113 @@
 
 declare( strict_types=1 );
 
-namespace OpenFields\Core;
+namespace OpenFields\Core {
 
-use OpenFields\Tests\WpStubs;
+	use OpenFields\Tests\WpStubs;
 
-if ( ! function_exists( __NAMESPACE__ . '\\wp_create_nonce' ) ) {
-
-	/**
-	 * @param string $action Action name.
-	 * @return mixed
-	 */
-	function wp_create_nonce( string $action ) {
-		return WpStubs::invoke( 'wp_create_nonce', func_get_args() );
+	if ( ! function_exists( __NAMESPACE__ . '\\wp_create_nonce' ) ) {
+		function wp_create_nonce( string $action ) {
+			return WpStubs::invoke( 'wp_create_nonce', func_get_args() );
+		}
+		function wp_verify_nonce( string $nonce, string $action ) {
+			return WpStubs::invoke( 'wp_verify_nonce', func_get_args() );
+		}
+		function current_user_can( string $capability ) {
+			return WpStubs::invoke( 'current_user_can', func_get_args() );
+		}
+		function user_can( int $user_id, string $capability ) {
+			return WpStubs::invoke( 'user_can', func_get_args() );
+		}
+		function register_post_type( string $post_type, array $args ) {
+			return WpStubs::invoke( 'register_post_type', func_get_args() );
+		}
+		function register_post_status( string $status, array $args ) {
+			return WpStubs::invoke( 'register_post_status', func_get_args() );
+		}
+		function register_meta( string $object_type, string $meta_key, array $args ) {
+			return WpStubs::invoke( 'register_meta', func_get_args() );
+		}
+		function __( string $text, string $domain = 'default' ): string {
+			return $text;
+		}
+		function _x( string $text, string $context, string $domain = 'default' ): string {
+			return $text;
+		}
+		function _n_noop( string $singular, string $plural, ?string $domain = null ): array {
+			return array( $singular, $plural );
+		}
+		function esc_html( string $text ): string {
+			return $text;
+		}
 	}
+}
 
-	/**
-	 * @param string $nonce  Nonce value.
-	 * @param string $action Action name.
-	 * @return mixed
-	 */
-	function wp_verify_nonce( string $nonce, string $action ) {
-		return WpStubs::invoke( 'wp_verify_nonce', func_get_args() );
+namespace OpenFields\FieldGroups {
+
+	use OpenFields\Tests\WpStubs;
+
+	if ( ! function_exists( __NAMESPACE__ . '\\get_post' ) ) {
+		function get_post( $post = null ) {
+			return WpStubs::invoke( 'get_post', func_get_args() );
+		}
+		function wp_json_encode( $data, int $options = 0, int $depth = 512 ) {
+			return \json_encode( $data, $options, $depth );
+		}
+		function apply_filters( string $hook, $value, ...$args ) {
+			return $value;
+		}
+		function wp_cache_get( $key, string $group = '', bool $force = false, &$found = null ) {
+			return WpStubs::invoke( 'wp_cache_get', array( $key, $group ) );
+		}
+		function wp_cache_set( $key, $value, string $group = '', int $expire = 0 ) {
+			return WpStubs::invoke( 'wp_cache_set', array( $key, $value, $group ) );
+		}
 	}
+}
 
-	/**
-	 * @param string $capability Capability.
-	 * @return mixed
-	 */
-	function current_user_can( string $capability ) {
-		return WpStubs::invoke( 'current_user_can', func_get_args() );
+namespace OpenFields\Support {
+
+	if ( ! function_exists( __NAMESPACE__ . '\\sanitize_text_field' ) ) {
+		function sanitize_text_field( string $value ): string {
+			return trim( (string) preg_replace( '/[\r\n\t ]+/', ' ', wp_strip_all_tags_shim( $value ) ) );
+		}
+		function sanitize_key( string $key ): string {
+			return (string) preg_replace( '/[^a-z0-9_\-]/', '', strtolower( $key ) );
+		}
+		/**
+		 * Minimal tag stripper for the sanitize_text_field stub.
+		 *
+		 * @param string $value Raw value.
+		 * @return string
+		 */
+		function wp_strip_all_tags_shim( string $value ): string {
+			return (string) preg_replace( '/<[^>]*>/', '', $value );
+		}
 	}
+}
 
-	/**
-	 * @param int    $user_id    User ID.
-	 * @param string $capability Capability.
-	 * @return mixed
-	 */
-	function user_can( int $user_id, string $capability ) {
-		return WpStubs::invoke( 'user_can', func_get_args() );
-	}
+namespace {
 
-	/**
-	 * @param string               $post_type Post type key.
-	 * @param array<string, mixed> $args      Arguments.
-	 * @return mixed
-	 */
-	function register_post_type( string $post_type, array $args ) {
-		return WpStubs::invoke( 'register_post_type', func_get_args() );
-	}
+	if ( ! class_exists( 'WP_Post' ) ) {
+		/**
+		 * Minimal WP_Post stand-in for unit tests.
+		 */
+		#[\AllowDynamicProperties]
+		class WP_Post {
+			public int $ID = 0;
+			public string $post_type = '';
+			public string $post_content = '';
+			public string $post_title = '';
+			public string $post_status = 'publish';
 
-	/**
-	 * @param string               $status Status key.
-	 * @param array<string, mixed> $args   Arguments.
-	 * @return mixed
-	 */
-	function register_post_status( string $status, array $args ) {
-		return WpStubs::invoke( 'register_post_status', func_get_args() );
-	}
-
-	/**
-	 * @param string               $object_type Object type.
-	 * @param string               $meta_key    Meta key.
-	 * @param array<string, mixed> $args        Arguments.
-	 * @return mixed
-	 */
-	function register_meta( string $object_type, string $meta_key, array $args ) {
-		return WpStubs::invoke( 'register_meta', func_get_args() );
-	}
-
-	/**
-	 * @param string $text   Text.
-	 * @param string $domain Text domain.
-	 * @return string
-	 */
-	function __( string $text, string $domain = 'default' ): string {
-		return $text;
-	}
-
-	/**
-	 * @param string $text    Text.
-	 * @param string $context Context.
-	 * @param string $domain  Text domain.
-	 * @return string
-	 */
-	function _x( string $text, string $context, string $domain = 'default' ): string {
-		return $text;
-	}
-
-	/**
-	 * @param string      $singular Singular form.
-	 * @param string      $plural   Plural form.
-	 * @param string|null $domain   Text domain.
-	 * @return array<string, mixed>
-	 */
-	function _n_noop( string $singular, string $plural, ?string $domain = null ): array {
-		return array(
-			0          => $singular,
-			1          => $plural,
-			'singular' => $singular,
-			'plural'   => $plural,
-			'domain'   => $domain,
-		);
-	}
-
-	/**
-	 * @param string $text Text.
-	 * @return string
-	 */
-	function esc_html( string $text ): string {
-		return $text;
+			/**
+			 * @param array<string, mixed> $props Property overrides.
+			 */
+			public function __construct( array $props = array() ) {
+				foreach ( $props as $key => $value ) {
+					$this->{$key} = $value;
+				}
+			}
+		}
 	}
 }

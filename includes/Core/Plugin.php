@@ -9,6 +9,8 @@ declare( strict_types=1 );
 
 namespace OpenFields\Core;
 
+use OpenFields\FieldGroups\LocationCache;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -95,6 +97,11 @@ final class Plugin {
 			Assets::class,
 			static fn (): Assets => new Assets()
 		);
+
+		$this->container->singleton(
+			LocationCache::class,
+			static fn (): LocationCache => new LocationCache()
+		);
 	}
 
 	/**
@@ -109,15 +116,20 @@ final class Plugin {
 
 		$this->booted = true;
 
-		$post_type = $this->container->get( PostType::class );
-		$meta      = $this->container->get( MetaRegistrar::class );
-		$assets    = $this->container->get( Assets::class );
+		$post_type      = $this->container->get( PostType::class );
+		$meta           = $this->container->get( MetaRegistrar::class );
+		$assets         = $this->container->get( Assets::class );
+		$location_cache = $this->container->get( LocationCache::class );
 
 		add_action( 'init', array( $post_type, 'register_status' ), 1 );
 		add_action( 'init', array( $post_type, 'register' ) );
 		add_action( 'init', array( $meta, 'register' ) );
 		add_action( 'init', array( $this, 'load_textdomain' ) );
 		add_action( 'admin_enqueue_scripts', array( $assets, 'enqueue' ) );
+
+		// Invalidate cached location matches whenever a field group changes.
+		add_action( 'save_post_' . PostType::POST_TYPE, array( $location_cache, 'invalidate' ) );
+		add_action( 'deleted_post', array( $location_cache, 'invalidate' ) );
 
 		/**
 		 * Fires after OpenFields has booted.
