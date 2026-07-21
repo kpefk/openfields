@@ -23,11 +23,11 @@ defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 function purge_site(): void {
 	$group_posts = get_posts(
 		array(
-			'post_type'      => 'openfields-group',
-			'post_status'    => 'any',
-			'numberposts'    => -1,
-			'fields'         => 'ids',
-			'no_found_rows'  => true,
+			'post_type'        => 'openfields-group',
+			'post_status'      => 'any',
+			'numberposts'      => -1,
+			'fields'           => 'ids',
+			'no_found_rows'    => true,
 			'suppress_filters' => true,
 		)
 	);
@@ -49,14 +49,27 @@ function purge_site(): void {
 	}
 }
 
-if ( is_multisite() ) {
-	$site_ids = get_sites( array( 'fields' => 'ids' ) );
+/**
+ * Dispatch the uninstall cleanup across single-site or multisite.
+ *
+ * Wrapped in a function so no variables are declared at global scope.
+ *
+ * @return void
+ */
+function run(): void {
+	if ( is_multisite() ) {
+		$site_ids = get_sites( array( 'fields' => 'ids' ) );
 
-	foreach ( $site_ids as $site_id ) {
-		switch_to_blog( (int) $site_id );
-		purge_site();
-		restore_current_blog();
+		foreach ( $site_ids as $site_id ) {
+			switch_to_blog( (int) $site_id );
+			purge_site();
+			restore_current_blog();
+		}
+
+		return;
 	}
-} else {
+
 	purge_site();
 }
+
+run();

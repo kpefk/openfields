@@ -8,6 +8,8 @@
 	<exclude-pattern>/node_modules/*</exclude-pattern>
 	<exclude-pattern>/assets/build/*</exclude-pattern>
 	<exclude-pattern>/tests/*</exclude-pattern>
+	<!-- "Silence is golden" directory-index stubs carry no logic to sniff. -->
+	<exclude-pattern>*/index.php</exclude-pattern>
 
 	<arg name="extensions" value="php"/>
 	<arg name="basepath" value="."/>
@@ -38,6 +40,13 @@
 				<element value="OpenFields"/>
 				<element value="OPENFIELDS"/>
 			</property>
+		</properties>
+	</rule>
+
+	<!-- OpenFields uses ACF-style namespaced hooks, e.g. "openfields/booted". -->
+	<rule ref="WordPress.NamingConventions.ValidHookName">
+		<properties>
+			<property name="additionalWordDelimiters" value="/"/>
 		</properties>
 	</rule>
 </ruleset>
