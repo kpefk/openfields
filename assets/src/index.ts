@@ -6,9 +6,10 @@
  */
 
 import { registerCoreFieldTypes } from './field-types';
-import { mountFieldGroupBuilder } from './admin';
+import { mountFieldGroupBuilder, mountRecordForms } from './admin';
 
 registerCoreFieldTypes();
 mountFieldGroupBuilder();
+mountRecordForms();
 
 export const OPENFIELDS_VERSION = '0.1.0-alpha';

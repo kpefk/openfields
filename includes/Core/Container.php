@@ -92,13 +92,17 @@ final class Container {
 	/**
 	 * Resolve a service by its identifier.
 	 *
-	 * @param string $id Service identifier.
-	 * @return mixed
+	 * @template T of object
+	 * @param class-string<T> $id Service identifier.
+	 * @return T
 	 * @throws NotFoundException When the identifier is not registered.
 	 */
 	public function get( string $id ) {
 		if ( array_key_exists( $id, $this->resolved ) ) {
-			return $this->resolved[ $id ];
+			$resolved = $this->resolved[ $id ];
+			// phpcs:ignore Generic.Commenting.DocComment.MissingShort -- Inline generic return type.
+			/** @var T $resolved */
+			return $resolved;
 		}
 
 		if ( ! isset( $this->factories[ $id ] ) ) {
@@ -113,6 +117,8 @@ final class Container {
 			$this->resolved[ $id ] = $object;
 		}
 
+		// phpcs:ignore Generic.Commenting.DocComment.MissingShort -- Inline generic return type.
+		/** @var T $object */
 		return $object;
 	}
 }

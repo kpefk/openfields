@@ -56,5 +56,11 @@ minor releases.
   core types on the front end. Image/File share a media-library picker; choice
   types read their options from `settings.choices`; a shared `requiredError`
   helper drives client-side required validation.
+- Record form: field groups whose location rules match a post edit screen now
+  render as meta boxes (matches cached via `LocationCache`). A `FieldGroupRepository`
+  enumerates groups, a `ValueStore` sanitizes values by field type and persists
+  them to post meta (reading them back to seed the form), and the React
+  `RecordForm` reuses each field type's edit component. Values are saved on
+  `save_post` after nonce and `edit_post` capability checks.
 
 [Unreleased]: https://github.com/kpefk/openfields/commits/main

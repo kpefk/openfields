@@ -10,7 +10,11 @@ declare( strict_types=1 );
 namespace OpenFields\Core;
 
 use OpenFields\Admin\FieldGroupEditScreen;
+use OpenFields\Admin\MetaBoxes;
+use OpenFields\FieldGroups\FieldGroupRepository;
 use OpenFields\FieldGroups\LocationCache;
+use OpenFields\FieldGroups\LocationRules;
+use OpenFields\FieldGroups\ValueStore;
 use OpenFields\FieldTypes\FieldTypeRegistry;
 
 defined( 'ABSPATH' ) || exit;
@@ -111,14 +115,36 @@ final class Plugin {
 		);
 
 		$this->container->singleton(
-			FieldGroupEditScreen::class,
-			static function ( Container $c ): FieldGroupEditScreen {
-				$security = $c->get( Security::class );
+			FieldGroupRepository::class,
+			static fn (): FieldGroupRepository => new FieldGroupRepository()
+		);
 
-				return new FieldGroupEditScreen(
-					$security instanceof Security ? $security : new Security()
-				);
-			}
+		$this->container->singleton(
+			LocationRules::class,
+			static fn (): LocationRules => new LocationRules()
+		);
+
+		$this->container->singleton(
+			ValueStore::class,
+			static fn ( Container $c ): ValueStore =>
+				new ValueStore( $c->get( FieldTypeRegistry::class ) )
+		);
+
+		$this->container->singleton(
+			FieldGroupEditScreen::class,
+			static fn ( Container $c ): FieldGroupEditScreen =>
+				new FieldGroupEditScreen( $c->get( Security::class ) )
+		);
+
+		$this->container->singleton(
+			MetaBoxes::class,
+			static fn ( Container $c ): MetaBoxes => new MetaBoxes(
+				$c->get( FieldGroupRepository::class ),
+				$c->get( LocationRules::class ),
+				$c->get( LocationCache::class ),
+				$c->get( ValueStore::class ),
+				$c->get( Security::class )
+			)
 		);
 	}
 
@@ -152,10 +178,8 @@ final class Plugin {
 		add_action( 'deleted_post', array( $location_cache, 'invalidate' ) );
 
 		if ( is_admin() ) {
-			$edit_screen = $this->container->get( FieldGroupEditScreen::class );
-			if ( $edit_screen instanceof FieldGroupEditScreen ) {
-				$edit_screen->register();
-			}
+			$this->container->get( FieldGroupEditScreen::class )->register();
+			$this->container->get( MetaBoxes::class )->register();
 		}
 
 		/**

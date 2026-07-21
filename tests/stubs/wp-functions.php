@@ -72,6 +72,26 @@ if ( ! function_exists( 'get_post' ) ) {
 	}
 }
 
+if ( ! function_exists( 'get_posts' ) ) {
+	function get_posts( $args = array() ) {
+		$result = WpStubs::invoke( 'get_posts', array( $args ) );
+
+		return is_array( $result ) ? $result : array();
+	}
+}
+
+if ( ! function_exists( 'update_post_meta' ) ) {
+	function update_post_meta( $post_id, $meta_key, $meta_value, $prev = '' ) {
+		return WpStubs::invoke( 'update_post_meta', array( $post_id, $meta_key, $meta_value ) );
+	}
+}
+
+if ( ! function_exists( 'get_post_meta' ) ) {
+	function get_post_meta( $post_id, $meta_key = '', $single = false ) {
+		return WpStubs::invoke( 'get_post_meta', array( $post_id, $meta_key, $single ) );
+	}
+}
+
 if ( ! function_exists( 'wp_cache_get' ) ) {
 	function wp_cache_get( $key, $group = '', $force = false, &$found = null ) {
 		return WpStubs::invoke( 'wp_cache_get', array( $key, $group ) );
