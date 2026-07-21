@@ -44,5 +44,12 @@ minor releases.
   `registerFieldType` registry mirroring the PHP one, and the first three field
   components — Text, Number and True/False — registered on load. Frontend Jest
   tests run via `@wordpress/scripts`.
+- Field Group Builder: a React app (pure reducer + `@dnd-kit` drag-and-drop with
+  keyboard support) to add, reorder, duplicate, delete and configure fields,
+  edit per-field conditional logic, define location rules, and set group
+  options. Mounted on the `openfields-group` edit screen, it serializes to a
+  hidden input; a `wp_insert_post_data` handler validates the nonce/capability,
+  sanitizes the payload and persists it to the post content. A Playwright e2e
+  spec covers the create → add → save → reload flow.
 
 [Unreleased]: https://github.com/kpefk/openfields/commits/main

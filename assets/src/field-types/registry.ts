@@ -24,9 +24,7 @@ export function registerFieldType< TValue >(
 /**
  * Retrieve a registered field type, or undefined when unknown.
  */
-export function getFieldType(
-	type: string
-): FieldTypeDefinition | undefined {
+export function getFieldType( type: string ): FieldTypeDefinition | undefined {
 	return registry.get( type );
 }
 

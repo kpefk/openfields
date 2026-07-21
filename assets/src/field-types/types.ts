@@ -26,7 +26,7 @@ export type {
  * Fallback value shape for a field whose value type is not specialised.
  */
 export interface FieldValue {
-	[key: string]: unknown;
+	[ key: string ]: unknown;
 }
 
 /**

@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace OpenFields\Core;
 
+use OpenFields\Admin\FieldGroupEditScreen;
 use OpenFields\FieldGroups\LocationCache;
 use OpenFields\FieldTypes\FieldTypeRegistry;
 
@@ -108,6 +109,17 @@ final class Plugin {
 			FieldTypeRegistry::class,
 			static fn (): FieldTypeRegistry => new FieldTypeRegistry()
 		);
+
+		$this->container->singleton(
+			FieldGroupEditScreen::class,
+			static function ( Container $c ): FieldGroupEditScreen {
+				$security = $c->get( Security::class );
+
+				return new FieldGroupEditScreen(
+					$security instanceof Security ? $security : new Security()
+				);
+			}
+		);
 	}
 
 	/**
@@ -138,6 +150,13 @@ final class Plugin {
 		// Invalidate cached location matches whenever a field group changes.
 		add_action( 'save_post_' . PostType::POST_TYPE, array( $location_cache, 'invalidate' ) );
 		add_action( 'deleted_post', array( $location_cache, 'invalidate' ) );
+
+		if ( is_admin() ) {
+			$edit_screen = $this->container->get( FieldGroupEditScreen::class );
+			if ( $edit_screen instanceof FieldGroupEditScreen ) {
+				$edit_screen->register();
+			}
+		}
 
 		/**
 		 * Fires after OpenFields has booted.

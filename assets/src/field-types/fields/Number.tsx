@@ -20,7 +20,9 @@ function NumberEdit( {
 			label={ config.label }
 			help={ config.instructions }
 			placeholder={ config.placeholder }
-			value={ value === null || value === undefined ? '' : String( value ) }
+			value={
+				value === null || value === undefined ? '' : String( value )
+			}
 			disabled={ disabled }
 			onChange={ ( next ) =>
 				onChange( '' === next ? null : Number( next ) )

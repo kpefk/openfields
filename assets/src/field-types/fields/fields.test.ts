@@ -47,10 +47,12 @@ describe( 'numberField', () => {
 		expect(
 			numberField.validate?.( null, config( { required: true } ) )
 		).toEqual( expect.any( String ) );
+		expect( numberField.validate?.( Number.NaN, config() ) ).toEqual(
+			expect.any( String )
+		);
 		expect(
-			numberField.validate?.( Number.NaN, config() )
-		).toEqual( expect.any( String ) );
-		expect( numberField.validate?.( 5, config( { required: true } ) ) ).toBeNull();
+			numberField.validate?.( 5, config( { required: true } ) )
+		).toBeNull();
 		expect( numberField.validate?.( null, config() ) ).toBeNull();
 	} );
 } );
