@@ -23,12 +23,11 @@ defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 function purge_site(): void {
 	$group_posts = get_posts(
 		array(
-			'post_type'        => 'openfields-group',
-			'post_status'      => 'any',
-			'numberposts'      => -1,
-			'fields'           => 'ids',
-			'no_found_rows'    => true,
-			'suppress_filters' => true,
+			'post_type'     => 'openfields-group',
+			'post_status'   => 'any',
+			'numberposts'   => -1,
+			'fields'        => 'ids',
+			'no_found_rows' => true,
 		)
 	);
 
