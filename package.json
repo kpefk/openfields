@@ -18,10 +18,14 @@
 		"lint:js": "wp-scripts lint-js",
 		"lint:css": "wp-scripts lint-style",
 		"format": "wp-scripts format",
-		"make-pot": "wp-scripts i18n make-pot . languages/openfields.pot --domain=openfields"
+		"make-pot": "wp-scripts i18n make-pot . languages/openfields.pot --domain=openfields",
+		"env": "wp-env",
+		"env:start": "wp-env start",
+		"env:stop": "wp-env stop"
 	},
 	"devDependencies": {
 		"@types/react": "^18.3.0",
+		"@wordpress/env": "^10.0.0",
 		"@types/wordpress__block-editor": "^11.0.0",
 		"@types/wordpress__components": "^23.0.0",
 		"@types/wordpress__data": "^6.0.0",
