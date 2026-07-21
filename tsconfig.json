@@ -1,0 +1,17 @@
+{
+	"extends": "@wordpress/scripts/config/tsconfig.json",
+	"compilerOptions": {
+		"strict": true,
+		"jsx": "react-jsx",
+		"baseUrl": ".",
+		"noEmit": true,
+		"types": ["react", "wordpress__components", "wordpress__data"],
+		"paths": {
+			"@fields/*": ["assets/src/field-types/*"],
+			"@admin/*": ["assets/src/admin/*"],
+			"@blocks/*": ["assets/src/blocks/*"]
+		}
+	},
+	"include": ["assets/src/**/*.ts", "assets/src/**/*.tsx"],
+	"exclude": ["node_modules", "assets/build", "vendor"]
+}

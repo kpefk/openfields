@@ -1,0 +1,14 @@
+includes:
+	- vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+	level: 6
+	paths:
+		- includes
+		- openfields.php
+		- uninstall.php
+	excludePaths:
+		- vendor/*
+		- node_modules/*
+		- assets/build/*
+	treatPhpDocTypesAsCertain: false

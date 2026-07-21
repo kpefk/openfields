@@ -1,0 +1,95 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  php:
+    name: PHP (PHPCS · PHPStan · PHPUnit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          coverage: none
+          tools: composer
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: PHPCS
+        run: composer run phpcs
+
+      - name: PHPStan
+        run: composer run phpstan
+
+      - name: PHPUnit
+        run: composer run test
+
+  js:
+    name: JS/TS (type-check · lint · build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Generate types from JSON schema
+        run: bun run generate:types
+
+      - name: Type-check (blocks merge on type errors)
+        run: bun run type-check
+
+      - name: Lint JS/TS
+        run: bun run lint:js
+
+      - name: Build
+        run: bun run build
+
+  plugin-check:
+    name: WordPress Plugin Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Build assets
+        run: |
+          bun install --frozen-lockfile
+          bun run build
+
+      # NOTE: pin an exact release; do not use @main. Re-verify `exclude-checks`
+      # behaviour whenever this version is bumped — some releases have shipped
+      # bugs where exclude-checks / ignore-warnings were silently ignored.
+      - name: Run Plugin Check
+        uses: wordpress/plugin-check-action@v1.1.2
+        with:
+          # `exclude-checks` takes newline-separated exact check slugs (not
+          # comma-separated, not category groups). These are relaxed while the
+          # plugin is pre-release and the readme.txt is incomplete; the full set
+          # is restored before the 1.0.0 release (see plan, Крок 10).
+          exclude-checks: |
+            readme_default_text
+            readme_stable_tag
+            plugin_readme
+            plugin_updater

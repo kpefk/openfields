@@ -1,0 +1,27 @@
+# Dependencies
+/vendor/
+/node_modules/
+
+# Build output
+/assets/build/
+
+# Tooling caches
+.phpunit.result.cache
+.phpcs.cache
+/.wp-env/
+/.cache/
+
+# Generated types (regenerated from schemas)
+/assets/src/field-types/generated/
+
+# Compiled translations
+/languages/*.mo
+
+# Logs & OS files
+*.log
+.DS_Store
+Thumbs.db
+
+# Editor
+/.idea/
+/.vscode/
