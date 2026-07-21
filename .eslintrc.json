@@ -14,6 +14,8 @@
 		"assets/src/field-types/generated/",
 		"vendor/",
 		"node_modules/",
+		"tests/",
+		"jest.config.js",
 		"*.min.js"
 	],
 	"overrides": [

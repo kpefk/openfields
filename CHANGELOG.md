@@ -51,5 +51,10 @@ minor releases.
   hidden input; a `wp_insert_post_data` handler validates the nonce/capability,
   sanitizes the payload and persists it to the post content. A Playwright e2e
   spec covers the create → add → save → reload flow.
+- Client components for the remaining core field types — Textarea, Email, URL,
+  Image, File, WYSIWYG, Select, Checkbox, Radio and Message — completing all 13
+  core types on the front end. Image/File share a media-library picker; choice
+  types read their options from `settings.choices`; a shared `requiredError`
+  helper drives client-side required validation.
 
 [Unreleased]: https://github.com/kpefk/openfields/commits/main
