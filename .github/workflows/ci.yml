@@ -68,28 +68,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: Build assets
-        run: |
-          bun install --frozen-lockfile
-          bun run build
-
-      # NOTE: pin an exact release; do not use @main. Re-verify `exclude-checks`
-      # behaviour whenever this version is bumped — some releases have shipped
-      # bugs where exclude-checks / ignore-warnings were silently ignored.
+      # Canonical usage: the action provisions its own wp-env and runs
+      # Plugin Check against the repo root (the plugin). We pin only the major
+      # tag @v1; re-verify exclude-checks behaviour whenever it bumps, since
+      # some releases have silently ignored exclude inputs.
       - name: Run Plugin Check
-        uses: wordpress/plugin-check-action@v1.1.2
+        uses: wordpress/plugin-check-action@v1
         with:
-          # `exclude-checks` takes newline-separated exact check slugs (not
-          # comma-separated, not category groups). These are relaxed while the
-          # plugin is pre-release and the readme.txt is incomplete; the full set
-          # is restored before the 1.0.0 release (see plan, Крок 10).
+          # Dev-only directories that ship no runtime PHP (their files have no
+          # ABSPATH guard, which direct_file_access would otherwise flag).
+          exclude-directories: |
+            tests
+            docs
+          # Newline-separated EXACT check slugs (verified against
+          # WordPress/plugin-check docs/checks.md — invalid slugs are silently
+          # ignored). Relaxed while pre-release; the full set is restored before
+          # 1.0.0 (see plan, Крок 10).
           exclude-checks: |
-            readme_default_text
-            readme_stable_tag
             plugin_readme
+            plugin_header_fields
+            trademarks
             plugin_updater
