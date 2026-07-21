@@ -9,5 +9,32 @@
 			"version": "detect"
 		}
 	},
-	"ignorePatterns": ["assets/build/", "vendor/", "node_modules/", "*.min.js"]
+	"ignorePatterns": [
+		"assets/build/",
+		"assets/src/field-types/generated/",
+		"vendor/",
+		"node_modules/",
+		"*.min.js"
+	],
+	"overrides": [
+		{
+			"files": ["**/*.ts", "**/*.tsx"],
+			"parser": "@typescript-eslint/parser",
+			"parserOptions": {
+				"sourceType": "module",
+				"ecmaFeatures": {
+					"jsx": true
+				}
+			},
+			"rules": {
+				"no-undef": "off",
+				"no-unused-vars": "off",
+				"jsdoc/no-undefined-types": "off",
+				"jsdoc/require-param": "off",
+				"jsdoc/require-param-type": "off",
+				"jsdoc/require-returns": "off",
+				"jsdoc/require-returns-type": "off"
+			}
+		}
+	]
 }

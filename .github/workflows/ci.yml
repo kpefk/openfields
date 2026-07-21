@@ -59,6 +59,9 @@ jobs:
       - name: Lint JS/TS
         run: bun run lint:js
 
+      - name: Unit tests (Jest)
+        run: bun run test:js
+
       - name: Build
         run: bun run build
 

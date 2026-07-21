@@ -22,5 +22,11 @@
 		}
 	},
 	"include": ["assets/src/**/*.ts", "assets/src/**/*.tsx"],
-	"exclude": ["node_modules", "assets/build", "vendor"]
+	"exclude": [
+		"node_modules",
+		"assets/build",
+		"vendor",
+		"**/*.test.ts",
+		"**/*.test.tsx"
+	]
 }

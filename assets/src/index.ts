@@ -1,9 +1,12 @@
 /**
  * OpenFields admin entry point.
  *
- * Milestone 0 placeholder — real admin/field-type registration is wired up in
- * later milestones (Крок 4а onward). This file exists so the TypeScript project
- * has at least one input and the build produces an artifact.
+ * Registers the built-in field types on load. The group builder and record form
+ * (added in later milestones) consume the registry populated here.
  */
+
+import { registerCoreFieldTypes } from './field-types';
+
+registerCoreFieldTypes();
 
 export const OPENFIELDS_VERSION = '0.1.0-alpha';

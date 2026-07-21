@@ -1,0 +1,91 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "https://openfields.dev/schemas/field-config.schema.json",
+	"title": "FieldConfig",
+	"description": "Serializable configuration of a single field, shared between the PHP REST layer and the TypeScript admin.",
+	"type": "object",
+	"required": ["key", "name", "label", "type"],
+	"additionalProperties": false,
+	"properties": {
+		"key": {
+			"type": "string",
+			"description": "Globally unique field key, e.g. \"field_hero_title\"."
+		},
+		"name": {
+			"type": "string",
+			"description": "Meta name used to store and retrieve the value."
+		},
+		"label": {
+			"type": "string",
+			"description": "Human-readable label shown in the editor."
+		},
+		"type": {
+			"type": "string",
+			"description": "Field type identifier, e.g. \"text\"."
+		},
+		"instructions": {
+			"type": "string"
+		},
+		"required": {
+			"type": "boolean"
+		},
+		"defaultValue": {},
+		"placeholder": {
+			"type": "string"
+		},
+		"conditionalLogic": {
+			"description": "Groups of conditions (OR of AND-groups) that toggle visibility, or false when disabled.",
+			"anyOf": [
+				{
+					"type": "array",
+					"items": { "$ref": "#/definitions/ConditionalLogicGroup" }
+				},
+				{
+					"type": "boolean",
+					"enum": [false]
+				}
+			]
+		},
+		"wrapper": { "$ref": "#/definitions/WrapperConfig" },
+		"settings": {
+			"type": "object",
+			"description": "Type-specific settings.",
+			"additionalProperties": true
+		}
+	},
+	"definitions": {
+		"WrapperConfig": {
+			"title": "WrapperConfig",
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"width": { "type": "string" },
+				"class": { "type": "string" },
+				"id": { "type": "string" }
+			}
+		},
+		"ConditionalLogicRule": {
+			"title": "ConditionalLogicRule",
+			"type": "object",
+			"required": ["field", "operator"],
+			"additionalProperties": false,
+			"properties": {
+				"field": {
+					"type": "string",
+					"description": "Key of the field this rule depends on."
+				},
+				"operator": {
+					"type": "string",
+					"enum": ["==", "!=", ">", "<", "contains", "empty", "not_empty", "matches"]
+				},
+				"value": {}
+			}
+		},
+		"ConditionalLogicGroup": {
+			"title": "ConditionalLogicGroup",
+			"description": "AND-group of conditional-logic rules.",
+			"type": "array",
+			"items": { "$ref": "#/definitions/ConditionalLogicRule" }
+		}
+	}
+}

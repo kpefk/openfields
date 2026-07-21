@@ -38,5 +38,11 @@ minor releases.
   `FieldTypeRegistry` with an `openfields/register_field_types` extension hook,
   plus the 13 core field types — Text, Textarea, Number, Email, URL, Image,
   File, WYSIWYG, Select, Checkbox, Radio, True/False and Message.
+- Field Type API (client): a TypeScript contract (`FieldConfig` and friends
+  generated from `schemas/field-config.schema.json` via `generate:types`, plus
+  the React-facing `FieldTypeDefinition` / `FieldEditProps` interfaces), a
+  `registerFieldType` registry mirroring the PHP one, and the first three field
+  components — Text, Number and True/False — registered on load. Frontend Jest
+  tests run via `@wordpress/scripts`.
 
 [Unreleased]: https://github.com/kpefk/openfields/commits/main
