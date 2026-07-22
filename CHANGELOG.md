@@ -62,5 +62,12 @@ minor releases.
   them to post meta (reading them back to seed the form), and the React
   `RecordForm` reuses each field type's edit component. Values are saved on
   `save_post` after nonce and `edit_post` capability checks.
+- Conditional logic and validation feedback in the record form: fields show and
+  hide live as their dependencies change (OR-of-AND rules with `==`, `!=`, `>`,
+  `<`, `contains`, `empty`, `not_empty`, `matches`). A PHP `Validator` checks
+  values on save and produces a `WP_Error` keyed by field key — the standardized
+  `{ field_key: message }` contract — which is stored per post/user and surfaced
+  back to the form to highlight invalid fields; the form also validates touched
+  fields client-side.
 
 [Unreleased]: https://github.com/kpefk/openfields/commits/main

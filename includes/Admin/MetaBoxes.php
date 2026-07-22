@@ -16,6 +16,7 @@ use OpenFields\FieldGroups\FieldGroupRepository;
 use OpenFields\FieldGroups\LocationCache;
 use OpenFields\FieldGroups\LocationContext;
 use OpenFields\FieldGroups\LocationRules;
+use OpenFields\FieldGroups\Validator;
 use OpenFields\FieldGroups\ValueStore;
 
 defined( 'ABSPATH' ) || exit;
@@ -66,6 +67,13 @@ final class MetaBoxes {
 	private Security $security;
 
 	/**
+	 * Value validator.
+	 *
+	 * @var Validator
+	 */
+	private Validator $validator;
+
+	/**
 	 * Build the meta boxes controller with its collaborators.
 	 *
 	 * @param FieldGroupRepository $repository Field group repository.
@@ -73,19 +81,22 @@ final class MetaBoxes {
 	 * @param LocationCache        $cache      Location match cache.
 	 * @param ValueStore           $values     Value store.
 	 * @param Security             $security   Security helper.
+	 * @param Validator            $validator  Value validator.
 	 */
 	public function __construct(
 		FieldGroupRepository $repository,
 		LocationRules $rules,
 		LocationCache $cache,
 		ValueStore $values,
-		Security $security
+		Security $security,
+		Validator $validator
 	) {
 		$this->repository = $repository;
 		$this->rules      = $rules;
 		$this->cache      = $cache;
 		$this->values     = $values;
 		$this->security   = $security;
+		$this->validator  = $validator;
 	}
 
 	/**
@@ -171,6 +182,8 @@ final class MetaBoxes {
 		$records = wp_unslash( $_POST['openfields_record'] );
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
+		$error_map = array();
+
 		foreach ( $records as $group_key => $json ) {
 			if ( ! is_string( $json ) ) {
 				continue;
@@ -184,9 +197,25 @@ final class MetaBoxes {
 
 			$decoded = json_decode( $json, true );
 
-			if ( is_array( $decoded ) ) {
-				$this->values->save( $post_id, $group, $decoded );
+			if ( ! is_array( $decoded ) ) {
+				continue;
 			}
+
+			$this->values->save( $post_id, $group, $decoded );
+
+			$errors = $this->validator->validate( $group, $decoded );
+
+			if ( $errors->has_errors() ) {
+				$error_map = array_merge( $error_map, Validator::to_map( $errors ) );
+			}
+		}
+
+		$transient = $this->errors_transient_key( $post_id );
+
+		if ( array() !== $error_map ) {
+			set_transient( $transient, $error_map, MINUTE_IN_SECONDS * 5 );
+		} else {
+			delete_transient( $transient );
 		}
 	}
 
@@ -201,6 +230,9 @@ final class MetaBoxes {
 		$values   = $this->values->read( (int) $post->ID, $group );
 		$input_id = 'openfields-record-input-' . $group->key();
 
+		$stored_errors = get_transient( $this->errors_transient_key( (int) $post->ID ) );
+		$errors        = is_array( $stored_errors ) ? $stored_errors : array();
+
 		printf(
 			'<input type="hidden" name="%1$s" value="%2$s" />',
 			esc_attr( self::NONCE_FIELD ),
@@ -212,11 +244,22 @@ final class MetaBoxes {
 			esc_attr( $group->key() )
 		);
 		printf(
-			'<div class="openfields-record-form" data-input-id="%1$s" data-group="%2$s" data-values="%3$s"></div>',
+			'<div class="openfields-record-form" data-input-id="%1$s" data-group="%2$s" data-values="%3$s" data-errors="%4$s"></div>',
 			esc_attr( $input_id ),
 			esc_attr( (string) wp_json_encode( $group->to_array() ) ),
-			esc_attr( (string) wp_json_encode( $values ) )
+			esc_attr( (string) wp_json_encode( $values ) ),
+			esc_attr( (string) wp_json_encode( $errors ) )
 		);
+	}
+
+	/**
+	 * Transient key holding the last save's validation errors for a post/user.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return string
+	 */
+	private function errors_transient_key( int $post_id ): string {
+		return 'openfields_errors_' . get_current_user_id() . '_' . $post_id;
 	}
 
 	/**

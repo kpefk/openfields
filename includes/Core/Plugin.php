@@ -14,6 +14,7 @@ use OpenFields\Admin\MetaBoxes;
 use OpenFields\FieldGroups\FieldGroupRepository;
 use OpenFields\FieldGroups\LocationCache;
 use OpenFields\FieldGroups\LocationRules;
+use OpenFields\FieldGroups\Validator;
 use OpenFields\FieldGroups\ValueStore;
 use OpenFields\FieldTypes\FieldTypeRegistry;
 
@@ -131,6 +132,12 @@ final class Plugin {
 		);
 
 		$this->container->singleton(
+			Validator::class,
+			static fn ( Container $c ): Validator =>
+				new Validator( $c->get( FieldTypeRegistry::class ) )
+		);
+
+		$this->container->singleton(
 			FieldGroupEditScreen::class,
 			static fn ( Container $c ): FieldGroupEditScreen =>
 				new FieldGroupEditScreen( $c->get( Security::class ) )
@@ -143,7 +150,8 @@ final class Plugin {
 				$c->get( LocationRules::class ),
 				$c->get( LocationCache::class ),
 				$c->get( ValueStore::class ),
-				$c->get( Security::class )
+				$c->get( Security::class ),
+				$c->get( Validator::class )
 			)
 		);
 	}

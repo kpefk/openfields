@@ -93,8 +93,10 @@ final class Container {
 	 * Resolve a service by its identifier.
 	 *
 	 * @template T of object
-	 * @param class-string<T> $id Service identifier.
-	 * @return T
+	 * @param string $id Service identifier.
+	 * @phpstan-param class-string<T> $id
+	 * @return object
+	 * @phpstan-return T
 	 * @throws NotFoundException When the identifier is not registered.
 	 */
 	public function get( string $id ) {

@@ -112,6 +112,10 @@ export function mountRecordForms(): void {
 			container.dataset.values,
 			{}
 		);
+		const serverErrors = parseJson< Record< string, string > >(
+			container.dataset.errors,
+			{}
+		);
 		const fields = Array.isArray( group.fields ) ? group.fields : [];
 
 		// Seed the hidden input so a save without edits keeps existing values.
@@ -124,6 +128,7 @@ export function mountRecordForms(): void {
 			<RecordForm
 				fields={ fields }
 				initialValues={ values }
+				serverErrors={ serverErrors }
 				onChange={ ( next ) => {
 					if ( input ) {
 						input.value = JSON.stringify( next );

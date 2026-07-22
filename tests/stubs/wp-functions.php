@@ -239,12 +239,29 @@ if ( ! class_exists( 'WP_Error' ) ) {
 		}
 
 		/**
+		 * @param string $code    Error code.
+		 * @param string $message Error message.
+		 * @param mixed  $data    Optional error data.
+		 * @return void
+		 */
+		public function add( $code, $message = '', $data = '' ) {
+			$this->errors[ $code ][] = $message;
+		}
+
+		/**
 		 * @return string
 		 */
 		public function get_error_code() {
 			$codes = array_keys( $this->errors );
 
 			return $codes[0] ?? '';
+		}
+
+		/**
+		 * @return string[]
+		 */
+		public function get_error_codes() {
+			return array_keys( $this->errors );
 		}
 
 		/**
