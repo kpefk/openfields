@@ -10,6 +10,10 @@ declare( strict_types=1 );
 namespace OpenFields\Tests\Unit\Core;
 
 use OpenFields\Core\MetaRegistrar;
+use OpenFields\FieldGroups\FieldGroupRepository;
+use OpenFields\FieldGroups\LocalStore;
+use OpenFields\FieldGroups\SchemaUpgrader;
+use OpenFields\FieldTypes\FieldTypeRegistry;
 use OpenFields\Tests\Unit\TestCase;
 use OpenFields\Tests\WpStubs;
 
@@ -18,41 +22,50 @@ use OpenFields\Tests\WpStubs;
  */
 final class MetaRegistrarTest extends TestCase {
 
-	public function test_register_field_meta_registers_single_scalar_meta(): void {
-		( new MetaRegistrar() )->register_field_meta(
-			'post',
-			'openfields_headline',
-			array( 'type' => 'string' )
-		);
+	public function test_register_registers_scalar_meta_per_value_field(): void {
+		WpStubs::set( 'get_posts', static fn () => array() );
 
-		$call = WpStubs::first_call( 'register_meta' );
-
-		$this->assertSame( 'post', $call[0] );
-		$this->assertSame( 'openfields_headline', $call[1] );
-		$this->assertTrue( $call[2]['single'] );
-		$this->assertSame( 'string', $call[2]['type'] );
-		$this->assertTrue( $call[2]['show_in_rest'] );
-		$this->assertIsCallable( $call[2]['auth_callback'] );
-	}
-
-	public function test_non_scalar_type_is_forced_to_string(): void {
-		( new MetaRegistrar() )->register_field_meta(
-			'post',
-			'openfields_repeater',
+		$local = new LocalStore();
+		$local->add(
 			array(
-				'type'        => 'array',
-				'rest_schema' => array(
-					'type'  => 'array',
-					'items' => array( 'type' => 'string' ),
+				'key'    => 'group_a',
+				'fields' => array(
+					array( 'key' => 'field_h', 'name' => 'headline', 'type' => 'text' ),
+					array( 'key' => 'field_c', 'name' => 'count', 'type' => 'number' ),
+					array( 'key' => 'field_t', 'name' => 'toggle', 'type' => 'true_false' ),
+					array( 'key' => 'field_m', 'name' => 'note', 'type' => 'message' ),
 				),
 			)
 		);
 
-		$args = WpStubs::first_call( 'register_meta' )[2];
+		$registered = array();
+		WpStubs::set(
+			'register_meta',
+			static function ( $object_type, $meta_key, $args ) use ( &$registered ): bool {
+				$registered[ $meta_key ] = $args;
 
-		$this->assertSame( 'string', $args['type'] );
-		$this->assertIsArray( $args['show_in_rest'] );
-		$this->assertArrayHasKey( 'schema', $args['show_in_rest'] );
-		$this->assertSame( 'array', $args['show_in_rest']['schema']['type'] );
+				return true;
+			}
+		);
+
+		$registry = new FieldTypeRegistry();
+		$registry->register_defaults();
+
+		$meta = new MetaRegistrar(
+			new FieldGroupRepository( new SchemaUpgrader(), $local ),
+			$registry
+		);
+		$meta->register();
+
+		$this->assertArrayHasKey( 'headline', $registered );
+		$this->assertSame( 'string', $registered['headline']['type'] );
+		$this->assertTrue( $registered['headline']['single'] );
+		$this->assertTrue( $registered['headline']['show_in_rest'] );
+
+		$this->assertSame( 'number', $registered['count']['type'] );
+		$this->assertSame( 'boolean', $registered['toggle']['type'] );
+
+		// UI-only fields (Message) register no meta.
+		$this->assertArrayNotHasKey( 'note', $registered );
 	}
 }

@@ -9,13 +9,12 @@ declare( strict_types=1 );
 
 namespace OpenFields\Admin;
 
+use OpenFields\Core\Assets;
 use OpenFields\Core\PostType;
 use OpenFields\Core\Security;
 use OpenFields\FieldGroups\FieldGroup;
 use OpenFields\FieldGroups\FieldGroupRepository;
-use OpenFields\FieldGroups\LocationCache;
-use OpenFields\FieldGroups\LocationContext;
-use OpenFields\FieldGroups\LocationRules;
+use OpenFields\FieldGroups\GroupMatcher;
 use OpenFields\FieldGroups\Validator;
 use OpenFields\FieldGroups\ValueStore;
 
@@ -39,18 +38,11 @@ final class MetaBoxes {
 	private FieldGroupRepository $repository;
 
 	/**
-	 * Location rules engine.
+	 * Group matcher.
 	 *
-	 * @var LocationRules
+	 * @var GroupMatcher
 	 */
-	private LocationRules $rules;
-
-	/**
-	 * Location match cache.
-	 *
-	 * @var LocationCache
-	 */
-	private LocationCache $cache;
+	private GroupMatcher $matcher;
 
 	/**
 	 * Value store.
@@ -74,29 +66,36 @@ final class MetaBoxes {
 	private Validator $validator;
 
 	/**
+	 * Asset enqueuer.
+	 *
+	 * @var Assets
+	 */
+	private Assets $assets;
+
+	/**
 	 * Build the meta boxes controller with its collaborators.
 	 *
 	 * @param FieldGroupRepository $repository Field group repository.
-	 * @param LocationRules        $rules      Location rules engine.
-	 * @param LocationCache        $cache      Location match cache.
+	 * @param GroupMatcher         $matcher    Group matcher.
 	 * @param ValueStore           $values     Value store.
 	 * @param Security             $security   Security helper.
 	 * @param Validator            $validator  Value validator.
+	 * @param Assets               $assets     Asset enqueuer.
 	 */
 	public function __construct(
 		FieldGroupRepository $repository,
-		LocationRules $rules,
-		LocationCache $cache,
+		GroupMatcher $matcher,
 		ValueStore $values,
 		Security $security,
-		Validator $validator
+		Validator $validator,
+		Assets $assets
 	) {
 		$this->repository = $repository;
-		$this->rules      = $rules;
-		$this->cache      = $cache;
+		$this->matcher    = $matcher;
 		$this->values     = $values;
 		$this->security   = $security;
 		$this->validator  = $validator;
+		$this->assets     = $assets;
 	}
 
 	/**
@@ -121,7 +120,22 @@ final class MetaBoxes {
 			return;
 		}
 
-		foreach ( $this->matching_groups( $post ) as $group ) {
+		$screen = get_current_screen();
+
+		// In the block editor the Gutenberg sidebar renders the fields instead.
+		if ( $screen instanceof \WP_Screen && $screen->is_block_editor() ) {
+			return;
+		}
+
+		$groups = $this->matcher->for_post( $post );
+
+		if ( array() === $groups ) {
+			return;
+		}
+
+		$this->assets->enqueue_app();
+
+		foreach ( $groups as $group ) {
 			$settings = $group->settings();
 			$position = isset( $settings['position'] ) ? (string) $settings['position'] : 'normal';
 			$context  = 'side' === $position ? 'side' : 'normal';
@@ -260,54 +274,5 @@ final class MetaBoxes {
 	 */
 	private function errors_transient_key( int $post_id ): string {
 		return 'openfields_errors_' . get_current_user_id() . '_' . $post_id;
-	}
-
-	/**
-	 * Resolve the field groups matching the current screen, cached per context.
-	 *
-	 * @param \WP_Post $post Current post.
-	 * @return FieldGroup[]
-	 */
-	private function matching_groups( \WP_Post $post ): array {
-		$context = $this->build_context( $post );
-		$hash    = md5( (string) wp_json_encode( $context->to_array() ) );
-
-		$cached = $this->cache->remember(
-			$hash,
-			fn (): array => $this->rules->matching_groups(
-				$this->repository->active(),
-				$context
-			)
-		);
-
-		$groups = array();
-
-		foreach ( is_array( $cached ) ? $cached : array() as $group ) {
-			if ( $group instanceof FieldGroup ) {
-				$groups[] = $group;
-			}
-		}
-
-		return $groups;
-	}
-
-	/**
-	 * Build the location context from the current post and user.
-	 *
-	 * @param \WP_Post $post Current post.
-	 * @return LocationContext
-	 */
-	private function build_context( \WP_Post $post ): LocationContext {
-		$user     = wp_get_current_user();
-		$template = get_page_template_slug( $post );
-
-		return new LocationContext(
-			array(
-				'post_type'     => $post->post_type,
-				'post_status'   => $post->post_status,
-				'page_template' => '' !== $template ? $template : 'default',
-				'user_roles'    => $user instanceof \WP_User ? $user->roles : array(),
-			)
-		);
 	}
 }

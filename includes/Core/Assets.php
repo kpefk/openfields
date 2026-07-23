@@ -32,6 +32,15 @@ final class Assets {
 			return;
 		}
 
+		$this->enqueue_app();
+	}
+
+	/**
+	 * Enqueue the admin application bundle. Idempotent (safe to call repeatedly).
+	 *
+	 * @return void
+	 */
+	public function enqueue_app(): void {
 		$this->enqueue_entry( 'index' );
 	}
 

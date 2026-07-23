@@ -77,5 +77,17 @@ minor releases.
   `openfields_add_options_page()` signature. New extension hooks
   (`openfields/load_value`, `openfields/format_value`, `openfields/updated_value`,
   `openfields/register_options_page`) are documented in `docs/hooks-reference.md`.
+- Gutenberg sidebar: in the block editor, matching field groups render in
+  document settings panels (`PluginDocumentSettingPanel`) bound to post meta via
+  `@wordpress/core-data`; the `MetaRegistrar` now registers each value field's
+  meta with `show_in_rest`. Meta boxes are used in the classic editor and the
+  block editor's are suppressed in favour of the sidebar. A shared, controlled
+  `FieldRenderer` (with conditional-logic visibility) backs both the classic
+  record form and the sidebar, and a `GroupMatcher` centralises location
+  matching.
+
+### Fixed
+- The record form now loads on regular post edit screens: meta boxes enqueue the
+  admin bundle themselves (previously it loaded only on the field-group screen).
 
 [Unreleased]: https://github.com/kpefk/openfields/commits/main

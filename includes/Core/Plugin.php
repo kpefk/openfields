@@ -10,9 +10,11 @@ declare( strict_types=1 );
 namespace OpenFields\Core;
 
 use OpenFields\Admin\FieldGroupEditScreen;
+use OpenFields\Admin\GutenbergSidebar;
 use OpenFields\Admin\MetaBoxes;
 use OpenFields\Api\FieldResolver;
 use OpenFields\FieldGroups\FieldGroupRepository;
+use OpenFields\FieldGroups\GroupMatcher;
 use OpenFields\FieldGroups\LocalStore;
 use OpenFields\FieldGroups\LocationCache;
 use OpenFields\FieldGroups\LocationRules;
@@ -100,7 +102,10 @@ final class Plugin {
 
 		$this->container->singleton(
 			MetaRegistrar::class,
-			static fn (): MetaRegistrar => new MetaRegistrar()
+			static fn ( Container $c ): MetaRegistrar => new MetaRegistrar(
+				$c->get( FieldGroupRepository::class ),
+				$c->get( FieldTypeRegistry::class )
+			)
 		);
 
 		$this->container->singleton(
@@ -145,6 +150,15 @@ final class Plugin {
 		);
 
 		$this->container->singleton(
+			GroupMatcher::class,
+			static fn ( Container $c ): GroupMatcher => new GroupMatcher(
+				$c->get( FieldGroupRepository::class ),
+				$c->get( LocationRules::class ),
+				$c->get( LocationCache::class )
+			)
+		);
+
+		$this->container->singleton(
 			ValueStore::class,
 			static fn ( Container $c ): ValueStore =>
 				new ValueStore( $c->get( FieldTypeRegistry::class ) )
@@ -166,11 +180,19 @@ final class Plugin {
 			MetaBoxes::class,
 			static fn ( Container $c ): MetaBoxes => new MetaBoxes(
 				$c->get( FieldGroupRepository::class ),
-				$c->get( LocationRules::class ),
-				$c->get( LocationCache::class ),
+				$c->get( GroupMatcher::class ),
 				$c->get( ValueStore::class ),
 				$c->get( Security::class ),
-				$c->get( Validator::class )
+				$c->get( Validator::class ),
+				$c->get( Assets::class )
+			)
+		);
+
+		$this->container->singleton(
+			GutenbergSidebar::class,
+			static fn ( Container $c ): GutenbergSidebar => new GutenbergSidebar(
+				$c->get( GroupMatcher::class ),
+				$c->get( Assets::class )
 			)
 		);
 	}
@@ -211,6 +233,7 @@ final class Plugin {
 		if ( is_admin() ) {
 			$this->container->get( FieldGroupEditScreen::class )->register();
 			$this->container->get( MetaBoxes::class )->register();
+			$this->container->get( GutenbergSidebar::class )->register();
 		}
 
 		/**

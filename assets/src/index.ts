@@ -7,9 +7,11 @@
 
 import { registerCoreFieldTypes } from './field-types';
 import { mountFieldGroupBuilder, mountRecordForms } from './admin';
+import { registerGutenbergSidebar } from './admin/gutenberg';
 
 registerCoreFieldTypes();
 mountFieldGroupBuilder();
 mountRecordForms();
+registerGutenbergSidebar();
 
 export const OPENFIELDS_VERSION = '0.1.0-alpha';

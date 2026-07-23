@@ -9,16 +9,18 @@ declare( strict_types=1 );
 
 namespace OpenFields\Core;
 
+use OpenFields\FieldGroups\FieldGroupRepository;
+use OpenFields\FieldTypes\AbstractFieldType;
+use OpenFields\FieldTypes\FieldTypeRegistry;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Registers field-value meta keys with a REST-safe schema.
+ * Registers field-value meta keys with a REST-safe schema, so values are
+ * available to the REST API and the Gutenberg editor (via `@wordpress/core-data`).
  *
- * `register_meta()` accepts only scalar types (`string`, `integer`, `number`,
- * `boolean`) — never `array`/`object`. Complex field values are stored as
- * JSON-serialized strings; their structure is described through
- * `show_in_rest => ['schema' => ...]`, not through the meta `type`. All keys are
- * public (no `_` prefix); write access is gated per-post via `auth_callback`.
+ * `register_meta()` accepts only scalar types; all keys are public (no `_`
+ * prefix), sanitized by the field type, and writable per-post via `auth_callback`.
  */
 final class MetaRegistrar {
 
@@ -30,15 +32,61 @@ final class MetaRegistrar {
 	private const SCALAR_TYPES = array( 'string', 'integer', 'number', 'boolean' );
 
 	/**
-	 * Register all known field-value meta keys.
+	 * Field group repository.
 	 *
-	 * Field-value meta is registered per field group; the group registry that
-	 * feeds this method is introduced in a later milestone. The method is hooked
-	 * now so the wiring is in place.
+	 * @var FieldGroupRepository
+	 */
+	private FieldGroupRepository $repository;
+
+	/**
+	 * Field type registry.
+	 *
+	 * @var FieldTypeRegistry
+	 */
+	private FieldTypeRegistry $types;
+
+	/**
+	 * Build the registrar with its collaborators.
+	 *
+	 * @param FieldGroupRepository $repository Field group repository.
+	 * @param FieldTypeRegistry    $types      Field type registry.
+	 */
+	public function __construct( FieldGroupRepository $repository, FieldTypeRegistry $types ) {
+		$this->repository = $repository;
+		$this->types      = $types;
+	}
+
+	/**
+	 * Register meta for every value field across all active groups.
 	 *
 	 * @return void
 	 */
 	public function register(): void {
+		$registered = array();
+
+		foreach ( $this->repository->active() as $group ) {
+			foreach ( $group->fields() as $field ) {
+				if ( ! is_array( $field ) || ! isset( $field['name'], $field['type'] ) ) {
+					continue;
+				}
+
+				$name = (string) $field['name'];
+
+				if ( isset( $registered[ $name ] ) ) {
+					continue;
+				}
+
+				$type = $this->types->get( (string) $field['type'] );
+
+				if ( null === $type || ! $type->has_value() ) {
+					continue;
+				}
+
+				$this->register_field( $name, $type, $field );
+				$registered[ $name ] = true;
+			}
+		}
+
 		/**
 		 * Fires when field-value meta keys should be registered.
 		 *
@@ -50,47 +98,32 @@ final class MetaRegistrar {
 	}
 
 	/**
-	 * Register a single field-value meta key.
+	 * Register a single field's value meta.
 	 *
-	 * @param string               $object_type Meta object type (e.g. "post").
-	 * @param string               $meta_key    Meta key.
-	 * @param array<string, mixed> $schema      {
-	 *     Optional schema overrides.
-	 *
-	 *     @type string        $type              Scalar type; forced to "string" if non-scalar.
-	 *     @type string        $description       Human-readable description.
-	 *     @type array|null    $rest_schema       Value passed to show_in_rest['schema'].
-	 *     @type callable|null  $sanitize_callback Sanitization callback.
-	 * }
+	 * @param string               $name  Meta key (field name).
+	 * @param AbstractFieldType    $type  Field type.
+	 * @param array<string, mixed> $field Field configuration.
 	 * @return void
 	 */
-	public function register_field_meta( string $object_type, string $meta_key, array $schema = array() ): void {
-		$type = isset( $schema['type'] ) && in_array( $schema['type'], self::SCALAR_TYPES, true )
-			? (string) $schema['type']
+	public function register_field( string $name, AbstractFieldType $type, array $field ): void {
+		$rest_type = in_array( $type->get_rest_type(), self::SCALAR_TYPES, true )
+			? $type->get_rest_type()
 			: 'string';
 
-		$show_in_rest = true;
+		register_meta(
+			'post',
+			$name,
+			array(
+				'single'            => true,
+				'type'              => $rest_type,
+				'show_in_rest'      => true,
+				'sanitize_callback' => static fn ( $value ) => $type->sanitize( $value, $field ),
+				'auth_callback'     => static function ( $allowed, $meta_key, $object_id, $user_id ) {
+					unset( $allowed, $meta_key );
 
-		if ( isset( $schema['rest_schema'] ) && is_array( $schema['rest_schema'] ) ) {
-			$show_in_rest = array( 'schema' => $schema['rest_schema'] );
-		}
-
-		$args = array(
-			'single'        => true,
-			'type'          => $type,
-			'description'   => isset( $schema['description'] ) ? (string) $schema['description'] : '',
-			'show_in_rest'  => $show_in_rest,
-			'auth_callback' => static function ( $allowed, $meta_key, $object_id, $user_id ) {
-				unset( $allowed, $meta_key );
-
-				return user_can( (int) $user_id, 'edit_post', (int) $object_id );
-			},
+					return user_can( (int) $user_id, 'edit_post', (int) $object_id );
+				},
+			)
 		);
-
-		if ( isset( $schema['sanitize_callback'] ) && is_callable( $schema['sanitize_callback'] ) ) {
-			$args['sanitize_callback'] = $schema['sanitize_callback'];
-		}
-
-		register_meta( $object_type, $meta_key, $args );
 	}
 }
