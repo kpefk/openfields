@@ -86,6 +86,12 @@ minor releases.
   record form and the sidebar, and a `GroupMatcher` centralises location
   matching.
 
+- REST API (read): a dedicated endpoint
+  `GET /openfields/v1/{post_type}/{id}` returns a post's field values, with
+  `?format=raw|formatted` and a `read_post` permission check. Field values are
+  also exposed on the standard `/wp/v2/*` endpoints under `openfields_fields`.
+  Documented in `docs/rest-api.md` (including the `v1` versioning policy).
+
 ### Fixed
 - The record form now loads on regular post edit screens: meta boxes enqueue the
   admin bundle themselves (previously it loaded only on the field-group screen).

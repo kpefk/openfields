@@ -109,10 +109,11 @@ final class FieldResolver {
 	/**
 	 * Read all field values for a post, keyed by field name.
 	 *
-	 * @param int $post_id Post ID.
+	 * @param int  $post_id Post ID.
+	 * @param bool $format  Whether to format the values via their field types.
 	 * @return array<string, mixed>
 	 */
-	public function get_all( int $post_id ): array {
+	public function get_all( int $post_id, bool $format = true ): array {
 		$result = array();
 
 		foreach ( $this->field_map() as $field ) {
@@ -123,7 +124,7 @@ final class FieldResolver {
 			$name = (string) $field['name'];
 
 			if ( ! isset( $result[ $name ] ) ) {
-				$result[ $name ] = $this->get( $name, $post_id, true );
+				$result[ $name ] = $this->get( $name, $post_id, $format );
 			}
 		}
 

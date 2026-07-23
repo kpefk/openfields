@@ -13,6 +13,8 @@ use OpenFields\Admin\FieldGroupEditScreen;
 use OpenFields\Admin\GutenbergSidebar;
 use OpenFields\Admin\MetaBoxes;
 use OpenFields\Api\FieldResolver;
+use OpenFields\Api\Rest\FieldsController;
+use OpenFields\Api\Rest\RegisterFields;
 use OpenFields\FieldGroups\FieldGroupRepository;
 use OpenFields\FieldGroups\GroupMatcher;
 use OpenFields\FieldGroups\LocalStore;
@@ -145,6 +147,18 @@ final class Plugin {
 		);
 
 		$this->container->singleton(
+			FieldsController::class,
+			static fn ( Container $c ): FieldsController =>
+				new FieldsController( $c->get( FieldResolver::class ) )
+		);
+
+		$this->container->singleton(
+			RegisterFields::class,
+			static fn ( Container $c ): RegisterFields =>
+				new RegisterFields( $c->get( FieldResolver::class ) )
+		);
+
+		$this->container->singleton(
 			LocationRules::class,
 			static fn (): LocationRules => new LocationRules()
 		);
@@ -229,6 +243,10 @@ final class Plugin {
 		add_action( 'save_post_' . PostType::POST_TYPE, array( $resolver, 'invalidate' ) );
 		add_action( 'deleted_post', array( $location_cache, 'invalidate' ) );
 		add_action( 'deleted_post', array( $resolver, 'invalidate' ) );
+
+		// REST API (read).
+		$this->container->get( FieldsController::class )->register();
+		$this->container->get( RegisterFields::class )->register();
 
 		if ( is_admin() ) {
 			$this->container->get( FieldGroupEditScreen::class )->register();

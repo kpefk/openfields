@@ -291,6 +291,92 @@ if ( ! function_exists( 'is_wp_error' ) ) {
 	}
 }
 
+if ( ! class_exists( 'WP_REST_Request' ) ) {
+	/**
+	 * Minimal WP_REST_Request stand-in for unit tests.
+	 */
+	class WP_REST_Request implements \ArrayAccess {
+
+		/**
+		 * @var array<string, mixed>
+		 */
+		private array $params;
+
+		/**
+		 * @param array<string, mixed> $params Request parameters.
+		 */
+		public function __construct( array $params = array() ) {
+			$this->params = $params;
+		}
+
+		/**
+		 * @param string $key Parameter name.
+		 * @return mixed
+		 */
+		public function get_param( $key ) {
+			return $this->params[ $key ] ?? null;
+		}
+
+		#[\ReturnTypeWillChange]
+		public function offsetExists( $offset ): bool {
+			return isset( $this->params[ $offset ] );
+		}
+
+		#[\ReturnTypeWillChange]
+		public function offsetGet( $offset ) {
+			return $this->params[ $offset ] ?? null;
+		}
+
+		#[\ReturnTypeWillChange]
+		public function offsetSet( $offset, $value ): void {
+			$this->params[ $offset ] = $value;
+		}
+
+		#[\ReturnTypeWillChange]
+		public function offsetUnset( $offset ): void {
+			unset( $this->params[ $offset ] );
+		}
+	}
+}
+
+if ( ! class_exists( 'WP_REST_Response' ) ) {
+	/**
+	 * Minimal WP_REST_Response stand-in for unit tests.
+	 */
+	class WP_REST_Response {
+
+		/**
+		 * @var mixed
+		 */
+		private $data;
+
+		/**
+		 * @param mixed $data   Response data.
+		 * @param int   $status HTTP status.
+		 */
+		public function __construct( $data = null, $status = 200 ) {
+			$this->data = $data;
+		}
+
+		/**
+		 * @return mixed
+		 */
+		public function get_data() {
+			return $this->data;
+		}
+	}
+}
+
+if ( ! function_exists( 'rest_ensure_response' ) ) {
+	function rest_ensure_response( $response ) {
+		if ( $response instanceof \WP_REST_Response || $response instanceof \WP_Error ) {
+			return $response;
+		}
+
+		return new \WP_REST_Response( $response );
+	}
+}
+
 if ( ! class_exists( 'WP_Post' ) ) {
 	/**
 	 * Minimal WP_Post stand-in for unit tests.
