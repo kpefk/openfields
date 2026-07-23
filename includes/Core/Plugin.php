@@ -11,7 +11,11 @@ namespace OpenFields\Core;
 
 use OpenFields\Admin\FieldGroupEditScreen;
 use OpenFields\Admin\GutenbergSidebar;
+use OpenFields\Admin\ImportExportScreen;
 use OpenFields\Admin\MetaBoxes;
+use OpenFields\ImportExport\Exporter;
+use OpenFields\ImportExport\Importer;
+use OpenFields\ImportExport\LocalJson;
 use OpenFields\Api\FieldResolver;
 use OpenFields\Api\Rest\FieldsController;
 use OpenFields\Api\Rest\RegisterFields;
@@ -209,6 +213,32 @@ final class Plugin {
 				$c->get( Assets::class )
 			)
 		);
+
+		$this->container->singleton(
+			Exporter::class,
+			static fn ( Container $c ): Exporter =>
+				new Exporter( $c->get( FieldGroupRepository::class ) )
+		);
+
+		$this->container->singleton(
+			Importer::class,
+			static fn (): Importer => new Importer()
+		);
+
+		$this->container->singleton(
+			LocalJson::class,
+			static fn ( Container $c ): LocalJson =>
+				new LocalJson( $c->get( LocalStore::class ) )
+		);
+
+		$this->container->singleton(
+			ImportExportScreen::class,
+			static fn ( Container $c ): ImportExportScreen => new ImportExportScreen(
+				$c->get( Exporter::class ),
+				$c->get( Importer::class ),
+				$c->get( Security::class )
+			)
+		);
 	}
 
 	/**
@@ -248,10 +278,14 @@ final class Plugin {
 		$this->container->get( FieldsController::class )->register();
 		$this->container->get( RegisterFields::class )->register();
 
+		// Local JSON sync (registers groups from the theme on init).
+		$this->container->get( LocalJson::class )->register();
+
 		if ( is_admin() ) {
 			$this->container->get( FieldGroupEditScreen::class )->register();
 			$this->container->get( MetaBoxes::class )->register();
 			$this->container->get( GutenbergSidebar::class )->register();
+			$this->container->get( ImportExportScreen::class )->register();
 		}
 
 		/**

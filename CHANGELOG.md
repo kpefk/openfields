@@ -86,6 +86,13 @@ minor releases.
   record form and the sidebar, and a `GroupMatcher` centralises location
   matching.
 
+- Import/Export and Local JSON: an `Exporter` (groups to JSON or generated
+  `openfields_add_local_field_group()` PHP), an `Importer` (JSON in, creating or
+  updating groups by key), and `LocalJson` sync that loads groups from an
+  `openfields-json/` directory in the active theme (overridable via the
+  `openfields/local_json_paths` filter). Locally-registered groups override
+  database-stored ones by key (configuration only; values stay in post meta). An
+  "Import &amp; Export" admin screen exposes all three.
 - REST API (read): a dedicated endpoint
   `GET /openfields/v1/{post_type}/{id}` returns a post's field values, with
   `?format=raw|formatted` and a `read_post` permission check. Field values are

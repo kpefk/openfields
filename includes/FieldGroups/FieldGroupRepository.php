@@ -64,21 +64,23 @@ final class FieldGroupRepository {
 			)
 		);
 
-		$groups = array();
+		$by_key = array();
 
 		foreach ( $posts as $post ) {
 			$group = FieldGroup::from_post( $post, $this->upgrader );
 
 			if ( null !== $group ) {
-				$groups[] = $group;
+				$by_key[ $group->key() ] = $group;
 			}
 		}
 
+		// Locally registered groups (programmatic / Local JSON) take precedence
+		// over database-stored groups sharing the same key.
 		foreach ( $this->local->all() as $group ) {
-			$groups[] = $group;
+			$by_key[ $group->key() ] = $group;
 		}
 
-		return $groups;
+		return array_values( $by_key );
 	}
 
 	/**

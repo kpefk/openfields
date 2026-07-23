@@ -92,6 +92,18 @@ if ( ! function_exists( 'get_post_meta' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wp_insert_post' ) ) {
+	function wp_insert_post( $postarr = array(), $wp_error = false ) {
+		return WpStubs::invoke( 'wp_insert_post', array( $postarr ) );
+	}
+}
+
+if ( ! function_exists( 'wp_update_post' ) ) {
+	function wp_update_post( $postarr = array(), $wp_error = false ) {
+		return WpStubs::invoke( 'wp_update_post', array( $postarr ) );
+	}
+}
+
 if ( ! function_exists( 'wp_cache_get' ) ) {
 	function wp_cache_get( $key, $group = '', $force = false, &$found = null ) {
 		return WpStubs::invoke( 'wp_cache_get', array( $key, $group ) );
