@@ -11,9 +11,12 @@ namespace OpenFields\Core;
 
 use OpenFields\Admin\FieldGroupEditScreen;
 use OpenFields\Admin\MetaBoxes;
+use OpenFields\Api\FieldResolver;
 use OpenFields\FieldGroups\FieldGroupRepository;
+use OpenFields\FieldGroups\LocalStore;
 use OpenFields\FieldGroups\LocationCache;
 use OpenFields\FieldGroups\LocationRules;
+use OpenFields\FieldGroups\SchemaUpgrader;
 use OpenFields\FieldGroups\Validator;
 use OpenFields\FieldGroups\ValueStore;
 use OpenFields\FieldTypes\FieldTypeRegistry;
@@ -116,8 +119,24 @@ final class Plugin {
 		);
 
 		$this->container->singleton(
+			LocalStore::class,
+			static fn (): LocalStore => new LocalStore()
+		);
+
+		$this->container->singleton(
 			FieldGroupRepository::class,
-			static fn (): FieldGroupRepository => new FieldGroupRepository()
+			static fn ( Container $c ): FieldGroupRepository => new FieldGroupRepository(
+				new SchemaUpgrader(),
+				$c->get( LocalStore::class )
+			)
+		);
+
+		$this->container->singleton(
+			FieldResolver::class,
+			static fn ( Container $c ): FieldResolver => new FieldResolver(
+				$c->get( FieldGroupRepository::class ),
+				$c->get( FieldTypeRegistry::class )
+			)
 		);
 
 		$this->container->singleton(
@@ -173,6 +192,7 @@ final class Plugin {
 		$assets         = $this->container->get( Assets::class );
 		$location_cache = $this->container->get( LocationCache::class );
 		$field_types    = $this->container->get( FieldTypeRegistry::class );
+		$resolver       = $this->container->get( FieldResolver::class );
 
 		add_action( 'init', array( $field_types, 'register_defaults' ), 1 );
 		add_action( 'init', array( $post_type, 'register_status' ), 1 );
@@ -181,9 +201,12 @@ final class Plugin {
 		add_action( 'init', array( $this, 'load_textdomain' ) );
 		add_action( 'admin_enqueue_scripts', array( $assets, 'enqueue' ) );
 
-		// Invalidate cached location matches whenever a field group changes.
+		// Invalidate cached location matches and field map whenever a field
+		// group changes.
 		add_action( 'save_post_' . PostType::POST_TYPE, array( $location_cache, 'invalidate' ) );
+		add_action( 'save_post_' . PostType::POST_TYPE, array( $resolver, 'invalidate' ) );
 		add_action( 'deleted_post', array( $location_cache, 'invalidate' ) );
+		add_action( 'deleted_post', array( $resolver, 'invalidate' ) );
 
 		if ( is_admin() ) {
 			$this->container->get( FieldGroupEditScreen::class )->register();

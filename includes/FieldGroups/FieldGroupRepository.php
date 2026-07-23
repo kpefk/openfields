@@ -26,12 +26,21 @@ final class FieldGroupRepository {
 	private SchemaUpgrader $upgrader;
 
 	/**
-	 * Build the repository with an optional schema upgrader.
+	 * Store of programmatically registered groups.
+	 *
+	 * @var LocalStore
+	 */
+	private LocalStore $local;
+
+	/**
+	 * Build the repository with an optional schema upgrader and local store.
 	 *
 	 * @param SchemaUpgrader|null $upgrader Optional upgrader.
+	 * @param LocalStore|null     $local    Optional local group store.
 	 */
-	public function __construct( ?SchemaUpgrader $upgrader = null ) {
+	public function __construct( ?SchemaUpgrader $upgrader = null, ?LocalStore $local = null ) {
 		$this->upgrader = $upgrader ?? new SchemaUpgrader();
+		$this->local    = $local ?? new LocalStore();
 	}
 
 	/**
@@ -63,6 +72,10 @@ final class FieldGroupRepository {
 			if ( null !== $group ) {
 				$groups[] = $group;
 			}
+		}
+
+		foreach ( $this->local->all() as $group ) {
+			$groups[] = $group;
 		}
 
 		return $groups;

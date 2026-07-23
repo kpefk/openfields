@@ -19,12 +19,11 @@ if ( ! is_readable( $autoloader ) ) {
 	exit( 1 );
 }
 
-require_once $autoloader;
-
 /*
  * Plugin source files guard against direct access with `defined( 'ABSPATH' ) ||
  * exit;`. Define ABSPATH (and the plugin constants defined at runtime in
- * openfields.php) so the classes can load under PHPUnit.
+ * openfields.php) BEFORE the autoloader, because the `files` autoload entry
+ * (includes/Api/functions.php) runs that guard as it loads.
  */
 if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', sys_get_temp_dir() . '/' );
@@ -38,5 +37,10 @@ if ( ! defined( 'OPENFIELDS_VERSION' ) ) {
 	define( 'OPENFIELDS_MIN_PHP', '8.1' );
 }
 
+require_once $autoloader;
+
 // Namespaced WordPress function stubs used by unit tests.
 require_once __DIR__ . '/stubs/wp-functions.php';
+
+// Public API functions (loaded explicitly, not via Composer files autoload).
+require_once dirname( __DIR__ ) . '/includes/Api/functions.php';

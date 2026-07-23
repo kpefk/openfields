@@ -69,5 +69,13 @@ minor releases.
   `{ field_key: message }` contract — which is stored per post/user and surfaced
   back to the form to highlight invalid fields; the form also validates touched
   fields client-side.
+- Public PHP API: `get_field()`, `get_fields()` and `update_field()` (backed by
+  a `FieldResolver` that looks up field configs from a `wp_cache`-backed map and
+  formats/sanitizes by field type), `have_rows()` / `the_row()` scaffolds,
+  `openfields_add_local_field_group()` (programmatic groups via a `LocalStore`
+  the repository merges in), `openfields_register_field_type()`, and an
+  `openfields_add_options_page()` signature. New extension hooks
+  (`openfields/load_value`, `openfields/format_value`, `openfields/updated_value`,
+  `openfields/register_options_page`) are documented in `docs/hooks-reference.md`.
 
 [Unreleased]: https://github.com/kpefk/openfields/commits/main

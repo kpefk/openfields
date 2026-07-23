@@ -83,6 +83,10 @@ function bootstrap(): void {
 		return;
 	}
 
+	// Public API functions. Loaded here (not via Composer's files autoload) so
+	// their ABSPATH guard is only evaluated inside a WordPress request.
+	require_once OPENFIELDS_PATH . 'includes/Api/functions.php';
+
 	if ( class_exists( Core\Plugin::class ) ) {
 		Core\Plugin::instance()->boot();
 	}
