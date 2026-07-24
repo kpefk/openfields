@@ -23,6 +23,40 @@ feel familiar to ACF users while remaining fully GPL and forkable.
 | PHP       | 8.1+ |
 | MySQL / MariaDB | 5.7+ / 10.3+ |
 
+## Usage
+
+Create field groups in **Field Groups** in the admin, or register them in code:
+
+```php
+openfields_add_local_field_group( array(
+	'key'      => 'group_hero',
+	'title'    => 'Hero',
+	'location' => array(
+		array(
+			array( 'param' => 'post_type', 'operator' => '==', 'value' => 'page' ),
+		),
+	),
+	'fields'   => array(
+		array( 'key' => 'field_headline', 'name' => 'headline', 'label' => 'Headline', 'type' => 'text', 'required' => true ),
+		array( 'key' => 'field_image', 'name' => 'hero_image', 'label' => 'Image', 'type' => 'image' ),
+	),
+) );
+```
+
+Read and write values in your templates:
+
+```php
+$headline = get_field( 'headline' );          // current post
+$image_id = get_field( 'hero_image', $post_id );
+update_field( 'headline', 'Welcome', $post_id );
+$all = get_fields( $post_id );                 // every field, keyed by name
+```
+
+Values are also available over REST — see [docs/rest-api.md](docs/rest-api.md).
+
+For extending OpenFields, see [docs/hooks-reference.md](docs/hooks-reference.md)
+and [docs/field-types-api.md](docs/field-types-api.md).
+
 ## Development
 
 This project uses **Composer** (PHP) and **Bun** (JS/TS), and **`@wordpress/env`**

@@ -1,0 +1,102 @@
+/**
+ * OpenFields admin styles.
+ *
+ * Uses CSS logical properties (margin-block, padding-inline, inset-inline, …)
+ * so the layout mirrors correctly in RTL locales.
+ */
+
+/* Field Group Builder */
+
+.openfields-builder {
+	max-inline-size: 900px;
+}
+
+.openfields-builder__add-field {
+	margin-block-start: 12px;
+	gap: 8px;
+}
+
+.openfields-field-list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.openfields-field-list__empty {
+	color: #757575;
+	font-style: italic;
+}
+
+.openfields-field-row {
+	margin-block-end: 8px;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	background: #fff;
+}
+
+.openfields-field-row__header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding-block: 6px;
+	padding-inline: 8px;
+}
+
+.openfields-field-row__handle {
+	cursor: grab;
+}
+
+.openfields-field-row__title {
+	flex: 1;
+	text-align: start;
+	text-decoration: none;
+}
+
+.openfields-field-row__label {
+	font-weight: 600;
+}
+
+.openfields-field-row__type {
+	margin-inline-start: 8px;
+	color: #757575;
+	font-size: 12px;
+}
+
+.openfields-field-row__body {
+	padding: 12px;
+	border-block-start: 1px solid #f0f0f1;
+}
+
+/* Rule editors (conditional logic, location rules) */
+
+.openfields-cl-group,
+.openfields-loc-group {
+	margin-block-end: 8px;
+	padding: 12px;
+	border: 1px solid #f0f0f1;
+	border-radius: 4px;
+}
+
+.openfields-cl-rule,
+.openfields-loc-rule {
+	display: flex;
+	align-items: flex-end;
+	gap: 8px;
+	margin-block-end: 8px;
+}
+
+/* Record form */
+
+.openfields-record-field {
+	margin-block-end: 16px;
+}
+
+.openfields-record-field--error .components-base-control__field {
+	padding-inline-start: 8px;
+	border-inline-start: 3px solid #d63638;
+}
+
+.openfields-record-field__error {
+	margin-block-start: 4px;
+	color: #d63638;
+}

@@ -20,7 +20,7 @@
 		"lint:js": "wp-scripts lint-js",
 		"lint:css": "wp-scripts lint-style",
 		"format": "wp-scripts format",
-		"make-pot": "wp-scripts i18n make-pot . languages/openfields.pot --domain=openfields",
+		"make-pot": "wp i18n make-pot . languages/openfields.pot --domain=openfields --exclude=node_modules,vendor,assets/build,tests,.github",
 		"env": "wp-env",
 		"env:start": "wp-env start",
 		"env:stop": "wp-env stop"

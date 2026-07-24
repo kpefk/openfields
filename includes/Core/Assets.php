@@ -73,15 +73,30 @@ final class Assets {
 			return;
 		}
 
-		$asset = $this->asset_manifest( $entry );
+		$asset  = $this->asset_manifest( $entry );
+		$handle = 'openfields-' . $entry;
 
 		wp_enqueue_script(
-			'openfields-' . $entry,
+			$handle,
 			OPENFIELDS_URL . $script_rel,
 			$asset['dependencies'],
 			$asset['version'],
 			true
 		);
+
+		// @wordpress/scripts extracts a `style.css` import to `style-{entry}.css`.
+		$style_rel = 'assets/build/style-' . $entry . '.css';
+
+		if ( file_exists( OPENFIELDS_PATH . $style_rel ) ) {
+			wp_enqueue_style(
+				$handle,
+				OPENFIELDS_URL . $style_rel,
+				array( 'wp-components' ),
+				$asset['version']
+			);
+			// Load the generated *-rtl.css automatically in RTL locales.
+			wp_style_add_data( $handle, 'rtl', 'replace' );
+		}
 	}
 
 	/**

@@ -1,0 +1,248 @@
+# Copyright (C) 2026 KPEFK
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenFields 0.1.0-alpha\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/app\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-07-23T22:17:27+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: openfields\n"
+
+#. Plugin Name of the plugin
+#: openfields.php
+msgid "OpenFields"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: openfields.php
+msgid "https://github.com/kpefk/openfields"
+msgstr ""
+
+#. Description of the plugin
+#: openfields.php
+msgid "Open Source custom fields, field groups and content builders for WordPress — a GPL-compatible alternative to ACF PRO."
+msgstr ""
+
+#. Author of the plugin
+#: openfields.php
+msgid "KPEFK"
+msgstr ""
+
+#. Author URI of the plugin
+#: openfields.php
+msgid "https://github.com/kpefk"
+msgstr ""
+
+#: includes/Admin/ImportExportScreen.php:82
+#: includes/Admin/ImportExportScreen.php:83
+#: includes/Admin/ImportExportScreen.php:103
+msgid "Import & Export"
+msgstr ""
+
+#. translators: %d: number of imported field groups.
+#: includes/Admin/ImportExportScreen.php:111
+#, php-format
+msgid "Imported %d field group."
+msgid_plural "Imported %d field groups."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Admin/ImportExportScreen.php:118
+msgid "Export (JSON)"
+msgstr ""
+
+#: includes/Admin/ImportExportScreen.php:124
+msgid "Export (PHP)"
+msgstr ""
+
+#: includes/Admin/ImportExportScreen.php:130
+msgid "Import (JSON)"
+msgstr ""
+
+#: includes/Admin/ImportExportScreen.php:135
+msgid "Import"
+msgstr ""
+
+#: includes/Admin/ImportExportScreen.php:150
+msgid "You are not allowed to import field groups."
+msgstr ""
+
+#: includes/Admin/MetaBoxes.php:145
+msgid "Field Group"
+msgstr ""
+
+#: includes/Api/Rest/FieldsController.php:117
+msgid "No post found for the given type and ID."
+msgstr ""
+
+#: includes/Api/Rest/RegisterFields.php:68
+msgid "OpenFields field values."
+msgstr ""
+
+#: includes/Core/PostType.php:55
+msgctxt "field group status"
+msgid "Disabled"
+msgstr ""
+
+#. translators: %s: number of disabled field groups.
+#: includes/Core/PostType.php:63
+#, php-format
+msgid "Disabled <span class=\"count\">(%s)</span>"
+msgid_plural "Disabled <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Core/PostType.php:82
+msgid "OpenFields field groups."
+msgstr ""
+
+#: includes/Core/PostType.php:121
+msgctxt "post type general name"
+msgid "Field Groups"
+msgstr ""
+
+#: includes/Core/PostType.php:122
+msgctxt "post type singular name"
+msgid "Field Group"
+msgstr ""
+
+#: includes/Core/PostType.php:123
+msgctxt "admin menu"
+msgid "Field Groups"
+msgstr ""
+
+#: includes/Core/PostType.php:124
+msgid "Add New"
+msgstr ""
+
+#: includes/Core/PostType.php:125
+msgid "Add New Field Group"
+msgstr ""
+
+#: includes/Core/PostType.php:126
+msgid "Edit Field Group"
+msgstr ""
+
+#: includes/Core/PostType.php:127
+msgid "New Field Group"
+msgstr ""
+
+#: includes/Core/PostType.php:128
+msgid "View Field Group"
+msgstr ""
+
+#: includes/Core/PostType.php:129
+msgid "Search Field Groups"
+msgstr ""
+
+#: includes/Core/PostType.php:130
+msgid "No field groups found."
+msgstr ""
+
+#: includes/Core/PostType.php:131
+msgid "No field groups found in Trash."
+msgstr ""
+
+#: includes/Core/PostType.php:132
+msgid "Field Groups"
+msgstr ""
+
+#: includes/FieldTypes/AbstractFieldType.php:101
+msgid "This field is required."
+msgstr ""
+
+#: includes/FieldTypes/Types/AbstractChoiceFieldType.php:85
+msgid "An invalid choice was selected."
+msgstr ""
+
+#: includes/FieldTypes/Types/Checkbox.php:34
+msgid "Checkbox"
+msgstr ""
+
+#: includes/FieldTypes/Types/Email.php:36
+msgid "Email"
+msgstr ""
+
+#: includes/FieldTypes/Types/Email.php:61
+msgid "Please enter a valid email address."
+msgstr ""
+
+#: includes/FieldTypes/Types/File.php:36
+msgid "File"
+msgstr ""
+
+#: includes/FieldTypes/Types/Image.php:36
+msgid "Image"
+msgstr ""
+
+#: includes/FieldTypes/Types/Message.php:36
+msgid "Message"
+msgstr ""
+
+#: includes/FieldTypes/Types/Number.php:36
+msgid "Number"
+msgstr ""
+
+#: includes/FieldTypes/Types/Number.php:77
+msgid "Please enter a valid number."
+msgstr ""
+
+#. translators: %s: minimum allowed value.
+#: includes/FieldTypes/Types/Number.php:89
+#, php-format
+msgid "Value must be at least %s."
+msgstr ""
+
+#. translators: %s: maximum allowed value.
+#: includes/FieldTypes/Types/Number.php:100
+#, php-format
+msgid "Value must be at most %s."
+msgstr ""
+
+#: includes/FieldTypes/Types/Radio.php:34
+msgid "Radio Button"
+msgstr ""
+
+#: includes/FieldTypes/Types/Select.php:34
+msgid "Select"
+msgstr ""
+
+#: includes/FieldTypes/Types/Text.php:36
+msgid "Text"
+msgstr ""
+
+#. translators: %d: maximum number of characters.
+#: includes/FieldTypes/Types/Text.php:68
+#, php-format
+msgid "Value may not exceed %d characters."
+msgstr ""
+
+#: includes/FieldTypes/Types/Textarea.php:36
+msgid "Textarea"
+msgstr ""
+
+#: includes/FieldTypes/Types/TrueFalse.php:36
+msgid "True / False"
+msgstr ""
+
+#: includes/FieldTypes/Types/Url.php:36
+msgid "URL"
+msgstr ""
+
+#: includes/FieldTypes/Types/Url.php:61
+msgid "Please enter a valid URL."
+msgstr ""
+
+#: includes/FieldTypes/Types/Wysiwyg.php:36
+msgid "WYSIWYG Editor"
+msgstr ""
+
+#: openfields.php:58
+msgid "OpenFields is inactive because Advanced Custom Fields (ACF) is active. The two plugins provide the same functions and cannot run at the same time. Deactivate one of them."
+msgstr ""

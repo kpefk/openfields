@@ -99,6 +99,14 @@ minor releases.
   also exposed on the standard `/wp/v2/*` endpoints under `openfields_fields`.
   Documented in `docs/rest-api.md` (including the `v1` versioning policy).
 
+- Admin styles (RTL-safe via CSS logical properties), enqueued with the built
+  bundle; a generated `languages/openfields.pot` translation template; and
+  developer docs (README usage, getting started, Field Type API, hooks, REST).
+- CI now builds a production distribution (production files only; `vendor` from
+  `composer install --no-dev`) and runs WordPress Plugin Check against it as a
+  blocking job (`plugin_content` enforced; `prefixing`/`trademarks`/`minified_files`
+  excluded with rationale). PHPUnit reports coverage via pcov.
+
 ### Fixed
 - The record form now loads on regular post edit screens: meta boxes enqueue the
   admin bundle themselves (previously it loaded only on the field-group screen).

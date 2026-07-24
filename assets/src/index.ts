@@ -5,6 +5,7 @@
  * field-group edit screen (when its container is present).
  */
 
+import './style.css';
 import { registerCoreFieldTypes } from './field-types';
 import { mountFieldGroupBuilder, mountRecordForms } from './admin';
 import { registerGutenbergSidebar } from './admin/gutenberg';

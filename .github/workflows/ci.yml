@@ -21,7 +21,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
-          coverage: none
+          coverage: pcov
           tools: composer
 
       - name: Install Composer dependencies
@@ -33,8 +33,8 @@ jobs:
       - name: PHPStan
         run: composer run phpstan
 
-      - name: PHPUnit
-        run: composer run test
+      - name: PHPUnit (with coverage)
+        run: vendor/bin/phpunit --coverage-text
 
   js:
     name: JS/TS (type-check · lint · build)
@@ -66,22 +66,60 @@ jobs:
         run: bun run build
 
   plugin-check:
-    name: WordPress Plugin Check (informational)
+    name: WordPress Plugin Check
     runs-on: ubuntu-latest
-    # NON-BLOCKING for now. The action runs against the repo root, so packaging
-    # checks (plugin_content: hidden_files / application_detected / .github /
-    # unexpected markdown) fail on dev tooling that never ships in production.
-    # Its exclude-checks input is also unreliable in this release (silently
-    # ignored). The correct fix is to run Plugin Check against an assembled
-    # production distribution (production files only, vendor from
-    # `composer install --no-dev`); that lands with the release-zip pipeline
-    # (see plan, Крок 10), at which point this becomes blocking and the full
-    # check set is restored. Until then the job is informational — read its log
-    # for the valuable security / i18n / prefixing findings.
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
-      # Pin only the major tag @v1; re-verify behaviour on bumps.
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Build production assets
+        run: |
+          composer install --no-dev --optimize-autoloader --no-progress
+          bun install --frozen-lockfile
+          bun run build
+
+      # Assemble a distribution containing only production files, so the check
+      # runs against what actually ships (no dev tooling, hidden files or docs).
+      - name: Assemble production distribution
+        run: |
+          set -euo pipefail
+          DIST=dist/openfields
+          mkdir -p "$DIST/assets"
+          cp openfields.php uninstall.php readme.txt LICENSE "$DIST/"
+          cp -r includes "$DIST/"
+          cp -r assets/build "$DIST/assets/build"
+          cp -r vendor "$DIST/"
+          if compgen -G "languages/*.pot" > /dev/null; then
+            mkdir -p "$DIST/languages"
+            cp languages/*.pot "$DIST/languages/"
+          fi
+          find "$DIST" -depth -name '.*' -exec rm -rf {} +
+
+      # Pin only the major tag @v1; re-verify exclude behaviour on bumps.
       - name: Run Plugin Check
         uses: wordpress/plugin-check-action@v1
+        with:
+          build-dir: ./dist/openfields
+          # vendor is Composer's autoloader (third-party); scanning it is noise.
+          exclude-directories: |
+            vendor
+          # `prefixing`: OpenFields deliberately exposes the ACF-compatible
+          # unprefixed API (get_field, update_field, …), guarded against
+          # conflicts in openfields.php. `trademarks`: the readme positions the
+          # plugin against ACF. `minified_files`: the shipped build is minified
+          # by @wordpress/scripts; the source lives in assets/src in the repo.
+          # Everything else — including plugin_content — is enforced.
+          exclude-checks: |
+            prefixing
+            trademarks
+            minified_files
