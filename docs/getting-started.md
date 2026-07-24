@@ -26,7 +26,7 @@ show and hide live according to their conditional logic.
 ## Read values in a template
 
 ```php
-the_field_headline: <?php echo esc_html( get_field( 'headline' ) ); ?>
+<h1><?php echo esc_html( get_field( 'headline' ) ); ?></h1>
 ```
 
 See the [README](../README.md#usage) for the full API, and

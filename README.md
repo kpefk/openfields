@@ -52,10 +52,10 @@ update_field( 'headline', 'Welcome', $post_id );
 $all = get_fields( $post_id );                 // every field, keyed by name
 ```
 
-Values are also available over REST — see [docs/rest-api.md](docs/rest-api.md).
-
-For extending OpenFields, see [docs/hooks-reference.md](docs/hooks-reference.md)
-and [docs/field-types-api.md](docs/field-types-api.md).
+Full documentation is in [docs/](docs/README.md): the
+[public API](docs/public-api.md), [built-in field types](docs/field-types.md),
+the [Field Type API](docs/field-types-api.md),
+[hooks](docs/hooks-reference.md) and the [REST API](docs/rest-api.md).
 
 ## Development
 
